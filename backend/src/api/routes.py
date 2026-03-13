@@ -1,7 +1,9 @@
 """
 API routes. Section E: full surface per plan (templates, runs, rerun, versions).
 Uses existing storage and runner; no frontend changes.
+Mock mode: when OPENAI_API_KEY is not set, or USE_MOCK_LLM=1, pipeline uses placeholder output (no API key required).
 """
+import os
 import uuid
 
 from fastapi import APIRouter, HTTPException
@@ -10,6 +12,14 @@ from src.core.models import GenerationRequest
 from src.core import assembler, runner, storage
 
 router = APIRouter(prefix="/api", tags=["api"])
+
+
+def _use_mock_llm() -> bool:
+    """True if pipeline should use mock (placeholder) output: no API key required for local verification."""
+    if os.environ.get("USE_MOCK_LLM", "").strip().lower() in ("1", "true", "yes"):
+        return True
+    key = os.environ.get("OPENAI_API_KEY", "").strip()
+    return not bool(key)
 
 
 def _run_to_json(run):
@@ -62,7 +72,7 @@ def api_get_template(template_id: str):
 # --- Runs ---
 
 
-@router.post("/runs")
+@router.post("/runs", status_code=201)
 def api_create_run(body: GenerationRequest):
     """
     Create a run and run the full pipeline (run_all_sections).
@@ -70,7 +80,7 @@ def api_create_run(body: GenerationRequest):
     """
     run_id = str(uuid.uuid4())
     try:
-        runner.run_all_sections(run_id, body.structured_input, body.template_id, mock=False)
+        runner.run_all_sections(run_id, body.structured_input, body.template_id, mock=_use_mock_llm())
     except ValueError as e:
         if "Template not found" in str(e):
             raise HTTPException(status_code=404, detail=str(e))
@@ -132,7 +142,7 @@ def api_rerun_section(run_id: str, section_id: str):
         raise HTTPException(status_code=404, detail="Template not found")
 
     try:
-        runner.run_section(run_id, section_id, run.structured_input, template, mock=False)
+        runner.run_section(run_id, section_id, run.structured_input, template, mock=_use_mock_llm())
         assembler.assemble_document(run_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
