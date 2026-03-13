@@ -73,3 +73,44 @@ export async function getRun(runId: string): Promise<RunDetail> {
   if (!res.ok) throw new Error(await res.text())
   return res.json()
 }
+
+/** Section G: run history (GET /api/runs) */
+export interface RunSummary {
+  run_id: string
+  template_id: string
+  created_at: string
+  updated_at: string
+  section_count: number
+  label: string | null
+}
+
+export async function listRuns(): Promise<RunSummary[]> {
+  const res = await fetch(`${API}/runs`)
+  if (!res.ok) throw new Error(await res.text())
+  const data = await res.json()
+  return data.runs ?? []
+}
+
+/** Section G: rerun one section (POST .../rerun) */
+export async function rerunSection(runId: string, sectionId: string): Promise<{ run_id: string; section_id: string }> {
+  const res = await fetch(`${API}/runs/${runId}/sections/${sectionId}/rerun`, { method: 'POST' })
+  if (!res.ok) throw new Error(await res.text())
+  return res.json()
+}
+
+/** Section G: version history for a run (GET .../versions). Prototype: one entry per run. */
+export interface VersionSnapshot {
+  run_id: string
+  template_id: string
+  created_at: string
+  updated_at: string
+  section_count: number
+  label: string | null
+}
+
+export async function getRunVersions(runId: string): Promise<VersionSnapshot[]> {
+  const res = await fetch(`${API}/runs/${runId}/versions`)
+  if (!res.ok) throw new Error(await res.text())
+  const data = await res.json()
+  return data.versions ?? []
+}

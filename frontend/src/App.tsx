@@ -1,11 +1,31 @@
 /**
- * Section F: Generation request form, template selection, run status, section outputs, assembled document.
- * Minimal UI; uses existing API. No rerun/history UI (Section G).
+ * Section F+G: Generation form, template select, run status, section outputs, assembled doc;
+ * Section G: rerun section, run history, open run, version history.
  */
-import { useEffect, useState } from 'react'
-import { createRun, getRun, listTemplates, type RunDetail, type TemplateSummary } from './api'
+import { useCallback, useEffect, useState } from 'react'
+import {
+  createRun,
+  getRun,
+  getRunVersions,
+  listRuns,
+  listTemplates,
+  rerunSection,
+  type RunDetail,
+  type RunSummary,
+  type TemplateSummary,
+  type VersionSnapshot,
+} from './api'
 
 const POLL_INTERVAL_MS = 1500
+
+function formatDate(iso: string): string {
+  try {
+    const d = new Date(iso)
+    return d.toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })
+  } catch {
+    return iso
+  }
+}
 
 function App() {
   const [templates, setTemplates] = useState<TemplateSummary[]>([])
@@ -14,6 +34,9 @@ function App() {
   const [effectiveDate, setEffectiveDate] = useState('')
   const [runId, setRunId] = useState<string | null>(null)
   const [run, setRun] = useState<RunDetail | null>(null)
+  const [runs, setRuns] = useState<RunSummary[]>([])
+  const [versions, setVersions] = useState<VersionSnapshot[]>([])
+  const [rerunningSectionId, setRerunningSectionId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -28,6 +51,27 @@ function App() {
   useEffect(() => {
     if (templates.length > 0 && !templateId) setTemplateId(templates[0].id)
   }, [templates, templateId])
+
+  // Load run history on mount and when creating a new run (reset)
+  const refreshRunHistory = useCallback(() => {
+    listRuns()
+      .then(setRuns)
+      .catch(() => {})
+  }, [])
+  useEffect(() => {
+    refreshRunHistory()
+  }, [refreshRunHistory])
+
+  // When we have a run, load its versions (prototype: one entry)
+  useEffect(() => {
+    if (!runId) {
+      setVersions([])
+      return
+    }
+    getRunVersions(runId)
+      .then(setVersions)
+      .catch(() => setVersions([]))
+  }, [runId])
 
   // Poll run status when we have a run_id
   useEffect(() => {
@@ -62,7 +106,10 @@ function App() {
       template_id: templateId,
       structured_input: { client_name: clientName, effective_date: effectiveDate },
     })
-      .then(({ run_id }) => setRunId(run_id))
+      .then(({ run_id }) => {
+        setRunId(run_id)
+        refreshRunHistory()
+      })
       .catch((e) => {
         setError(e instanceof Error ? e.message : 'Failed to start run')
         setSubmitting(false)
@@ -74,6 +121,41 @@ function App() {
     setRunId(null)
     setRun(null)
     setError(null)
+    refreshRunHistory()
+  }
+
+  const handleOpenRun = (id: string) => {
+    setError(null)
+    setRunId(id)
+  }
+
+  const handleRerunSection = (sectionId: string) => {
+    if (!runId) return
+    setRerunningSectionId(sectionId)
+    setError(null)
+        rerunSection(runId, sectionId)
+      .then(() => {
+        // Poll until run is completed or failed
+        const poll = () => {
+          getRun(runId).then((data) => {
+            setRun(data)
+            if (data.status === 'running' || data.status === 'pending') {
+              setTimeout(poll, POLL_INTERVAL_MS)
+            } else {
+              setRerunningSectionId(null)
+              refreshRunHistory()
+            }
+          }).catch((e) => {
+            setError(e instanceof Error ? e.message : 'Rerun failed')
+            setRerunningSectionId(null)
+          })
+        }
+        poll()
+      })
+      .catch((e) => {
+        setError(e instanceof Error ? e.message : 'Rerun failed')
+        setRerunningSectionId(null)
+      })
   }
 
   return (
@@ -138,6 +220,38 @@ function App() {
         </div>
       </form>
 
+      {/* Section G: run history */}
+      <section style={{ marginBottom: '1.5rem' }}>
+        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Run history</h2>
+        {runs.length === 0 ? (
+          <p style={{ color: '#666', fontSize: '0.9rem' }}>No runs yet. Generate a document above.</p>
+        ) : (
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {runs.map((r) => (
+              <li key={r.run_id} style={{ marginBottom: '0.35rem' }}>
+                <button
+                  type="button"
+                  onClick={() => handleOpenRun(r.run_id)}
+                  style={{
+                    padding: '0.35rem 0.5rem',
+                    textAlign: 'left',
+                    width: '100%',
+                    maxWidth: '32rem',
+                    background: runId === r.run_id ? '#e0e0e0' : 'transparent',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                  }}
+                >
+                  {r.template_id} — {formatDate(r.updated_at)} ({r.run_id.slice(0, 8)})
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
       {error && (
         <p style={{ color: 'crimson', marginBottom: '1rem' }} role="alert">
           {error}
@@ -163,7 +277,17 @@ function App() {
                 <ul style={{ listStyle: 'none', padding: 0 }}>
                   {run.sections.map((s) => (
                     <li key={s.section_id} style={{ marginBottom: '1rem' }}>
-                      <strong>{s.section_id}</strong>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                        <strong>{s.section_id}</strong>
+                        <button
+                          type="button"
+                          onClick={() => handleRerunSection(s.section_id)}
+                          disabled={rerunningSectionId !== null}
+                          style={{ fontSize: '0.8rem', padding: '0.2rem 0.5rem' }}
+                        >
+                          {rerunningSectionId === s.section_id ? 'Rerunning…' : 'Rerun'}
+                        </button>
+                      </div>
                       <pre
                         style={{
                           marginTop: '0.25rem',
@@ -197,6 +321,20 @@ function App() {
                 </pre>
               ) : (
                 <p>No assembled document.</p>
+              )}
+
+              {/* Section G: version history (prototype: one entry per run) */}
+              {versions.length > 0 && (
+                <>
+                  <h3>Versions</h3>
+                  <ul style={{ listStyle: 'none', padding: 0, fontSize: '0.9rem' }}>
+                    {versions.map((v, i) => (
+                      <li key={i} style={{ marginBottom: '0.25rem', color: '#555' }}>
+                        {formatDate(v.updated_at)} — {v.section_count} sections
+                      </li>
+                    ))}
+                  </ul>
+                </>
               )}
             </>
           )}
