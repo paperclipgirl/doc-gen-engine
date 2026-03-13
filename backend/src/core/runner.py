@@ -40,9 +40,10 @@ def run_section(
     template: Template,
     model: Optional[str] = None,
     mock: bool = False,
+    previous_sections: Optional[str] = None,
 ) -> str:
     """
-    Load prompt for section, substitute structured_input, call model, save to sections/{section_id}.md.
+    Load prompt for section, substitute structured_input + previous_sections, call model, save to sections/{section_id}.md.
     If mock=True, write placeholder content instead of calling the API (for tests).
     Returns section content.
     """
@@ -50,7 +51,8 @@ def run_section(
     if section is None:
         raise ValueError("Section not found: %s" % section_id)
 
-    prompt_text = prompt_loader.load_prompt(section.prompt_path, structured_input)
+    prompt_input = {**structured_input, "previous_sections": previous_sections if previous_sections is not None else ""}
+    prompt_text = prompt_loader.load_prompt(section.prompt_path, prompt_input)
 
     if mock:
         content = "# Section: %s\n\n(Placeholder output; MOCK_LLM=1)\n\nPrompt length: %d chars." % (
@@ -91,12 +93,18 @@ def run_all_sections(
     storage.update_run_meta(run)
 
     try:
+        previous_parts: list[str] = []
         for section_id in section_ids:
             run = storage.get_run(run_id)
             if run is not None:
                 run.current_section_id = section_id
                 storage.update_run_meta(run)
-            run_section(run_id, section_id, structured_input, template, model=model, mock=mock)
+            previous_sections_str = "\n\n".join(previous_parts) if previous_parts else ""
+            section_content = run_section(
+                run_id, section_id, structured_input, template,
+                model=model, mock=mock, previous_sections=previous_sections_str,
+            )
+            previous_parts.append(section_content)
 
         content = assembler.assemble_document(run_id)
         run = storage.get_run(run_id)

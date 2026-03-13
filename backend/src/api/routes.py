@@ -148,8 +148,20 @@ def api_rerun_section(run_id: str, section_id: str):
     if template is None:
         raise HTTPException(status_code=404, detail="Template not found")
 
+    # Build previous_sections from sections that come before this one in the run
+    prev_ids = run.section_ids[: run.section_ids.index(section_id)]
+    previous_parts = []
+    for sid in prev_ids:
+        out = storage.read_section(run_id, sid)
+        if out is not None:
+            previous_parts.append(out.content)
+    previous_sections_str = "\n\n".join(previous_parts)
+
     try:
-        runner.run_section(run_id, section_id, run.structured_input, template, mock=_use_mock_llm())
+        runner.run_section(
+            run_id, section_id, run.structured_input, template,
+            mock=_use_mock_llm(), previous_sections=previous_sections_str,
+        )
         assembler.assemble_document(run_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
