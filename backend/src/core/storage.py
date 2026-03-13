@@ -51,7 +51,9 @@ def list_templates() -> list[Template]:
             obj = json.loads(data)
             obj["sections"] = [TemplateSection(**s) for s in obj.get("sections", [])]
             result.append(Template(**obj))
-        except Exception:
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning("Skipping template %s: %s", path.name, e)
             continue
     return result
 

@@ -7,78 +7,91 @@
       "id": "project_instructions",
       "prompt_path": "implementation_guidance/00_project_instructions.txt",
       "display_name": "Project Instructions",
+      "depends_on": [],
       "progress_message": "Confirming guidance scope"
     },
     {
       "id": "guidance_title",
       "prompt_path": "implementation_guidance/01_guidance_title.txt",
       "display_name": "Guidance Title",
+      "depends_on": [],
       "progress_message": "Generating guidance title"
     },
     {
       "id": "problem_context",
       "prompt_path": "implementation_guidance/02_problem_context.txt",
       "display_name": "Problem and Context",
+      "depends_on": [],
       "progress_message": "Drafting problem and context"
     },
     {
       "id": "architectural_positioning",
       "prompt_path": "implementation_guidance/03_architectural_positioning.txt",
       "display_name": "Architectural Context",
+      "depends_on": [],
       "progress_message": "Analyzing architectural positioning"
     },
     {
       "id": "option_1",
       "prompt_path": "implementation_guidance/04_option_1.txt",
       "display_name": "Option 1 – Approach",
+      "depends_on": [],
       "progress_message": "Evaluating architectural approach option 1"
     },
     {
       "id": "option_2",
       "prompt_path": "implementation_guidance/05_option_2.txt",
       "display_name": "Option 2 – Approach",
+      "depends_on": [],
       "progress_message": "Evaluating architectural approach option 2"
     },
     {
       "id": "option_3",
       "prompt_path": "implementation_guidance/06_option_3.txt",
       "display_name": "Option 3 – Approach",
+      "depends_on": [],
       "progress_message": "Assessing whether a third architectural option exists"
     },
     {
       "id": "comparative_analysis",
       "prompt_path": "implementation_guidance/07_comparative_analysis.txt",
       "display_name": "Comparative Analysis",
+      "depends_on": [],
       "progress_message": "Comparing architectural options"
     },
     {
       "id": "recommended_default",
       "prompt_path": "implementation_guidance/08_recommended_default.txt",
       "display_name": "Recommended Default Pattern",
+      "depends_on": [],
       "progress_message": "Determining recommended default approach"
     },
     {
       "id": "governance_risk",
       "prompt_path": "implementation_guidance/09_governance_risk.txt",
       "display_name": "Governance and Risk Considerations",
+      "depends_on": [],
       "progress_message": "Assessing governance and risk considerations"
     },
     {
       "id": "data_reporting",
       "prompt_path": "implementation_guidance/10_data_reporting.txt",
       "display_name": "Data and Reporting Implications",
+      "depends_on": [],
       "progress_message": "Analyzing data and reporting implications"
     },
     {
       "id": "reuse_library",
       "prompt_path": "implementation_guidance/11_reuse_library.txt",
       "display_name": "Reuse and Library Considerations",
+      "depends_on": [],
       "progress_message": "Evaluating reuse and accelerator library impact"
     },
     {
       "id": "validation_checklist",
       "prompt_path": "implementation_guidance/12_validation_checklist.txt",
       "display_name": "Validation Checklist",
+      "depends_on": [],
       "progress_message": "Performing final architectural validation"
     }
   ]
