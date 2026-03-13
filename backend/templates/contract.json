@@ -1,0 +1,9 @@
+{
+  "id": "contract",
+  "name": "Contract",
+  "description": "Sample contract document with intro and terms sections.",
+  "sections": [
+    { "id": "intro", "prompt_path": "contract/intro.txt", "display_name": "Introduction" },
+    { "id": "terms", "prompt_path": "contract/terms.txt", "display_name": "Terms" }
+  ]
+}

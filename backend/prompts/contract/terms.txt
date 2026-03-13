@@ -1,0 +1,1 @@
+# Placeholder — add prompt content for terms section (supports {{placeholders}}).
