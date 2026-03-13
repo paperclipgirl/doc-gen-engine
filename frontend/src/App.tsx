@@ -263,6 +263,9 @@ function App() {
           <h2>Run status</h2>
           <p>
             <strong>Status:</strong> {run.status}
+            {run.progress_message && (
+              <span style={{ marginLeft: '0.5rem', color: '#555' }}>{` — ${run.progress_message}`}</span>
+            )}
             {run.error && (
               <span style={{ color: 'crimson', marginLeft: '0.5rem' }}>{run.error}</span>
             )}

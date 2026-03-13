@@ -84,6 +84,7 @@ def run_all_sections(
     if template is None:
         raise ValueError("Template not found: %s" % template_id)
 
+    # Execution order: currently list order. Later can be derived from section.depends_on (topological sort).
     section_ids = [s.id for s in template.sections]
     run = storage.create_run(run_id, template_id, structured_input, section_ids)
     run.status = "running"
@@ -91,6 +92,10 @@ def run_all_sections(
 
     try:
         for section_id in section_ids:
+            run = storage.get_run(run_id)
+            if run is not None:
+                run.current_section_id = section_id
+                storage.update_run_meta(run)
             run_section(run_id, section_id, structured_input, template, model=model, mock=mock)
 
         content = assembler.assemble_document(run_id)

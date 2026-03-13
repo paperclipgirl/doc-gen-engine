@@ -3,7 +3,7 @@
   "name": "Contract",
   "description": "Sample contract document with intro and terms sections.",
   "sections": [
-    { "id": "intro", "prompt_path": "contract/intro.txt", "display_name": "Introduction" },
-    { "id": "terms", "prompt_path": "contract/terms.txt", "display_name": "Terms" }
+    { "id": "intro", "prompt_path": "contract/intro.txt", "display_name": "Introduction", "depends_on": [], "progress_message": "Drafting introduction" },
+    { "id": "terms", "prompt_path": "contract/terms.txt", "display_name": "Terms", "depends_on": ["intro"], "progress_message": "Drafting terms" }
   ]
 }

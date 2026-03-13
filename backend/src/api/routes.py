@@ -63,7 +63,7 @@ def api_get_template(template_id: str):
         "name": t.name,
         "description": t.description,
         "sections": [
-            {"id": s.id, "prompt_path": s.prompt_path, "display_name": s.display_name}
+            {"id": s.id, "prompt_path": s.prompt_path, "display_name": s.display_name, "depends_on": s.depends_on, "progress_message": s.progress_message}
             for s in t.sections
         ],
     }
@@ -118,11 +118,18 @@ def api_get_run(run_id: str):
     assembled = storage.read_assembled(run_id)
     assembled_json = assembled.model_dump(mode="json") if assembled else None
 
-    return {
+    out = {
         **_run_to_json(run),
         "sections": sections,
         "assembled": assembled_json,
     }
+    if run.status == "running" and run.current_section_id:
+        t = storage.get_template(run.template_id)
+        if t is not None:
+            sec = next((s for s in t.sections if s.id == run.current_section_id), None)
+            if sec is not None and sec.progress_message:
+                out["progress_message"] = sec.progress_message
+    return out
 
 
 @router.post("/runs/{run_id}/sections/{section_id}/rerun", status_code=202)

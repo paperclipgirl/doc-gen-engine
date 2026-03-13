@@ -66,6 +66,7 @@ export interface RunDetail {
   error: string | null
   sections: SectionOutput[]
   assembled: AssembledDoc | null
+  progress_message?: string | null
 }
 
 export async function getRun(runId: string): Promise<RunDetail> {

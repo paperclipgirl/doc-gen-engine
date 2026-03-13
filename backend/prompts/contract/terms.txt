@@ -1,0 +1,2 @@
+# Terms (placeholder)
+Generate standard terms section for client: {{clientName}}, effective {{effectiveDate}}.
