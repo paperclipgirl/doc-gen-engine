@@ -32,6 +32,9 @@ function App() {
   const [templateId, setTemplateId] = useState<string>('')
   const [clientName, setClientName] = useState('')
   const [effectiveDate, setEffectiveDate] = useState('')
+  const [topic, setTopic] = useState('')
+  const [jurisdiction, setJurisdiction] = useState('')
+  const [context, setContext] = useState('')
   const [runId, setRunId] = useState<string | null>(null)
   const [run, setRun] = useState<RunDetail | null>(null)
   const [runs, setRuns] = useState<RunSummary[]>([])
@@ -102,9 +105,13 @@ function App() {
     setError(null)
     setRun(null)
     setSubmitting(true)
+    const structured_input =
+      templateId === 'implementation_guidance'
+        ? { topic, jurisdiction, context: context || '' }
+        : { client_name: clientName, effective_date: effectiveDate }
     createRun({
       template_id: templateId,
-      structured_input: { client_name: clientName, effective_date: effectiveDate },
+      structured_input,
     })
       .then(({ run_id }) => {
         setRunId(run_id)
@@ -181,35 +188,89 @@ function App() {
             ))}
           </select>
         </div>
-        <div style={{ marginBottom: '1rem' }}>
-          <label htmlFor="clientName" style={{ display: 'block', marginBottom: '0.25rem' }}>
-            Client name
-          </label>
-          <input
-            id="clientName"
-            type="text"
-            value={clientName}
-            onChange={(e) => setClientName(e.target.value)}
-            disabled={submitting || !!runId}
-            style={{ padding: '0.35rem', width: '100%', maxWidth: '20rem' }}
-          />
-        </div>
-        <div style={{ marginBottom: '1rem' }}>
-          <label htmlFor="effectiveDate" style={{ display: 'block', marginBottom: '0.25rem' }}>
-            Effective date
-          </label>
-          <input
-            id="effectiveDate"
-            type="text"
-            value={effectiveDate}
-            onChange={(e) => setEffectiveDate(e.target.value)}
-            placeholder="e.g. 2025-01-15"
-            disabled={submitting || !!runId}
-            style={{ padding: '0.35rem', width: '100%', maxWidth: '20rem' }}
-          />
-        </div>
+        {templateId === 'implementation_guidance' ? (
+          <>
+            <div style={{ marginBottom: '1rem' }}>
+              <label htmlFor="topic" style={{ display: 'block', marginBottom: '0.25rem' }}>
+                Topic <span style={{ color: '#888' }}>(required)</span>
+              </label>
+              <input
+                id="topic"
+                type="text"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                disabled={submitting || !!runId}
+                style={{ padding: '0.35rem', width: '100%', maxWidth: '20rem' }}
+              />
+            </div>
+            <div style={{ marginBottom: '1rem' }}>
+              <label htmlFor="jurisdiction" style={{ display: 'block', marginBottom: '0.25rem' }}>
+                Jurisdiction <span style={{ color: '#888' }}>(required)</span>
+              </label>
+              <input
+                id="jurisdiction"
+                type="text"
+                value={jurisdiction}
+                onChange={(e) => setJurisdiction(e.target.value)}
+                disabled={submitting || !!runId}
+                style={{ padding: '0.35rem', width: '100%', maxWidth: '20rem' }}
+              />
+            </div>
+            <div style={{ marginBottom: '1rem' }}>
+              <label htmlFor="context" style={{ display: 'block', marginBottom: '0.25rem' }}>
+                Context <span style={{ color: '#888' }}>(optional)</span>
+              </label>
+              <textarea
+                id="context"
+                value={context}
+                onChange={(e) => setContext(e.target.value)}
+                disabled={submitting || !!runId}
+                placeholder="Additional context for the guidance"
+                rows={3}
+                style={{ padding: '0.35rem', width: '100%', maxWidth: '20rem', resize: 'vertical' }}
+              />
+            </div>
+          </>
+        ) : (
+          <>
+            <div style={{ marginBottom: '1rem' }}>
+              <label htmlFor="clientName" style={{ display: 'block', marginBottom: '0.25rem' }}>
+                Client name
+              </label>
+              <input
+                id="clientName"
+                type="text"
+                value={clientName}
+                onChange={(e) => setClientName(e.target.value)}
+                disabled={submitting || !!runId}
+                style={{ padding: '0.35rem', width: '100%', maxWidth: '20rem' }}
+              />
+            </div>
+            <div style={{ marginBottom: '1rem' }}>
+              <label htmlFor="effectiveDate" style={{ display: 'block', marginBottom: '0.25rem' }}>
+                Effective date
+              </label>
+              <input
+                id="effectiveDate"
+                type="text"
+                value={effectiveDate}
+                onChange={(e) => setEffectiveDate(e.target.value)}
+                placeholder="e.g. 2025-01-15"
+                disabled={submitting || !!runId}
+                style={{ padding: '0.35rem', width: '100%', maxWidth: '20rem' }}
+              />
+            </div>
+          </>
+        )}
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button type="submit" disabled={submitting || !templateId}>
+          <button
+            type="submit"
+            disabled={
+              submitting ||
+              !templateId ||
+              (templateId === 'implementation_guidance' && (!topic.trim() || !jurisdiction.trim()))
+            }
+          >
             {submitting ? 'Starting…' : 'Generate'}
           </button>
           {runId && (
