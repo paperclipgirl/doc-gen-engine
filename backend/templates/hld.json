@@ -1,0 +1,100 @@
+{
+  "id": "hld",
+  "name": "High-Level Design",
+  "description": "ShareDo / Operate High-Level Design template.",
+  "sections": [
+    {
+      "id": "project_instructions",
+      "prompt_path": "hld/00_project_instructions.txt",
+      "display_name": "Project Instructions",
+      "progress_message": "Confirming HLD scope",
+      "depends_on": []
+    },
+    {
+      "id": "how_to_use_this_document",
+      "prompt_path": "hld/01_how_to_use_this_document.txt",
+      "display_name": "How To Use This Document",
+      "progress_message": "Drafting how to use this document",
+      "depends_on": []
+    },
+    {
+      "id": "success_factors",
+      "prompt_path": "hld/02_success_factors.txt",
+      "display_name": "Success Factors",
+      "progress_message": "Defining success factors",
+      "depends_on": []
+    },
+    {
+      "id": "building_blocks",
+      "prompt_path": "hld/03_building_blocks.txt",
+      "display_name": "Building Blocks",
+      "progress_message": "Defining building blocks",
+      "depends_on": []
+    },
+    {
+      "id": "user_journey",
+      "prompt_path": "hld/04_user_journey.txt",
+      "display_name": "User Journey",
+      "progress_message": "Drafting user journey",
+      "depends_on": []
+    },
+    {
+      "id": "workflows",
+      "prompt_path": "hld/05_workflows.txt",
+      "display_name": "Workflows",
+      "progress_message": "Defining workflows",
+      "depends_on": []
+    },
+    {
+      "id": "integrations",
+      "prompt_path": "hld/06_integrations.txt",
+      "display_name": "Integrations",
+      "progress_message": "Defining integrations",
+      "depends_on": []
+    },
+    {
+      "id": "data_migration",
+      "prompt_path": "hld/07_data_migration.txt",
+      "display_name": "Data Migration",
+      "progress_message": "Defining data migration",
+      "depends_on": []
+    },
+    {
+      "id": "product_enhancements",
+      "prompt_path": "hld/08_product_enhancements.txt",
+      "display_name": "Product Enhancements",
+      "progress_message": "Defining product enhancements",
+      "depends_on": []
+    },
+    {
+      "id": "business_intelligence",
+      "prompt_path": "hld/09_business_intelligence.txt",
+      "display_name": "Business Intelligence",
+      "progress_message": "Defining business intelligence",
+      "depends_on": []
+    },
+    {
+      "id": "document_control",
+      "prompt_path": "hld/10_document_control.txt",
+      "display_name": "Document Control",
+      "progress_message": "Defining document control",
+      "depends_on": []
+    },
+    {
+      "id": "design_review_pass",
+      "prompt_path": "hld/90_design_review_pass.txt",
+      "display_name": "Design Review Pass",
+      "progress_message": "Running design review pass",
+      "depends_on": [],
+      "section_type": "meta"
+    },
+    {
+      "id": "hld_library_fit_check",
+      "prompt_path": "hld/91_hld_library_fit_check.txt",
+      "display_name": "HLD Library Fit Check",
+      "progress_message": "Checking HLD library fit",
+      "depends_on": [],
+      "section_type": "meta"
+    }
+  ]
+}
