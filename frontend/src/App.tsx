@@ -132,6 +132,75 @@ const AREA_OF_LAW: { area: string; subs: string[] }[] = [
   },
 ]
 
+/** North America component menu: grouped by domain for the Component form field. */
+const COMPONENT_GROUPS: { domain: string; components: string[] }[] = [
+  {
+    domain: 'Procedural',
+    components: [
+      'Procedural Step Framework',
+      'Proceedings / Hearing Container',
+      'Court Filing Workflow Pattern',
+      'Service of Process Management',
+      'Hearings Management',
+      'Witness Management',
+      'Evidence & Bundling Overlay',
+      'Limitation & Deadline Tracker',
+      'Enforcement / Recovery Workflow',
+      'Settlement Negotiation Workflow',
+      'Mediation / ADR',
+      'Case Strategy Planning',
+      'Procedural Timeline View',
+      'Document Submission Tracker',
+      'Investigation Management',
+      'Interview Management',
+      'Regulatory Response Management',
+    ],
+  },
+  {
+    domain: 'Governance',
+    components: [
+      'Security / Case Lockdown Pattern',
+      'Conflict & Compliance Review Module',
+      'AML / Identity Verification Module',
+      'Commercial Approval Pattern',
+      'Delegated Authority Pattern',
+      'Supervisory Review Pattern',
+      'Hold / Suspension Pattern',
+      'Complaints Handling',
+      'Matter Closure Governance',
+      'Budget / Reserve',
+      'Costs Tracking',
+      'Financial Exposure Aggregator',
+      'Billing Milestone Tracker',
+      'Settlement / Damages Calculator',
+      'Renewal & Deadline Management',
+      'Post-Completion Obligations Tracker',
+      'Filing Deadline Compliance',
+    ],
+  },
+  {
+    domain: 'Foundation',
+    components: [
+      'Instruction Intake Framework',
+      'Matter Lifecycle Framework',
+      'Task Governance Pattern',
+      'Participant Role Framework',
+      'Key Date Engine',
+      'Document Governance Framework',
+      'Portal Framework',
+      'Data Capture Framework',
+      'Workflow Automation Framework',
+      'Reporting & KPI Overlay',
+      'Party and Counterparty Container',
+      'Client Reporting Framework',
+      'Collaboration Workspace',
+      'Document Expectation & Chase Engine',
+      'Integration Connector Framework',
+      'Notification & Escalation Engine',
+    ],
+  },
+]
+
 function formatDate(iso: string): string {
   try {
     const d = new Date(iso)
@@ -144,6 +213,7 @@ function formatDate(iso: string): string {
 function App() {
   const [templates, setTemplates] = useState<TemplateSummary[]>([])
   const [templateId, setTemplateId] = useState<string>('')
+  const [component, setComponent] = useState<string>('')
   const [clientName, setClientName] = useState('')
   const [topic, setTopic] = useState('')
   const [areaOfLaw, setAreaOfLaw] = useState('')
@@ -282,6 +352,7 @@ function App() {
     const structured_input: Record<string, string> = useTopicJurisdictionContext
       ? { topic, jurisdiction: jurisdictionValue, context: context || '' }
       : { client_name: clientName, jurisdiction: jurisdictionValue }
+    if (component.trim()) structured_input.component = component.trim()
     createRun({
       template_id: templateId,
       structured_input,
@@ -562,6 +633,25 @@ function App() {
               >
                 {templates.map((t) => (
                   <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="component" className="form-label">Component <span className="form-label-optional">(optional)</span></label>
+              <select
+                id="component"
+                className="select"
+                value={component}
+                onChange={(e) => setComponent(e.target.value)}
+                disabled={submitting || !!runId}
+              >
+                <option value="">Select component</option>
+                {COMPONENT_GROUPS.map((group) => (
+                  <optgroup key={group.domain} label={group.domain}>
+                    {group.components.map((name) => (
+                      <option key={name} value={name}>{name}</option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </div>

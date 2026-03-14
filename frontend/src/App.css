@@ -345,6 +345,11 @@
   appearance: auto;
 }
 
+.select optgroup {
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+}
+
 /* Buttons */
 .btn-primary {
   height: 36px;
