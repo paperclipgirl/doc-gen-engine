@@ -142,3 +142,48 @@ describe('Output Type section always visible', () => {
     expect(within(section).getByText('Output Type')).toBeInTheDocument()
   })
 })
+
+describe('Solution Definition boot flow (smoke)', () => {
+  beforeEach(() => {
+    vi.mocked(api.listRuns).mockResolvedValue([])
+    vi.mocked(api.getRunVersions).mockResolvedValue([])
+    vi.mocked(api.getRunFeedback).mockResolvedValue({})
+  })
+
+  it('app mounts, template loading runs, loading state shown, then Output Type options appear', async () => {
+    let resolveTemplates!: (value: typeof DEFAULT_TEMPLATES) => void
+    const templatesPromise = new Promise<typeof DEFAULT_TEMPLATES>((resolve) => {
+      resolveTemplates = resolve
+    })
+    vi.mocked(api.listTemplates).mockReturnValue(templatesPromise as ReturnType<typeof api.listTemplates>)
+
+    const { container } = renderApp()
+
+    // App renders without crashing
+    expect(container).toBeInTheDocument()
+
+    // Solution Definition form is visible (form is rendered per tab panel)
+    expect(screen.getAllByRole('heading', { name: 'Solution Definition' }).length).toBeGreaterThanOrEqual(1)
+
+    // Output Type label is visible
+    expect(screen.getAllByText('Output Type').length).toBeGreaterThanOrEqual(1)
+
+    // Loading message appears before the mocked request resolves
+    expect(screen.getAllByText(/Loading output types…/).length).toBeGreaterThanOrEqual(1)
+
+    // Resolve the template request (simulates API response)
+    resolveTemplates(DEFAULT_TEMPLATES)
+
+    // After resolution: radio options appear (template load completes through normal UI path).
+    // Note: we do not assert "loading message disappears" because the form is rendered in multiple
+    // tab panels and the smoke test focuses on the primary flow: options become visible.
+    await waitFor(() => {
+      expect(screen.getAllByRole('radio', { name: 'Implementation Guidance' }).length).toBeGreaterThanOrEqual(1)
+    })
+
+    // At least one expected template name is visible
+    const expectedNames = ['Implementation Guidance', 'Workflow Pattern', 'High-Level Design']
+    const visible = expectedNames.some((name) => screen.queryAllByText(name).length > 0)
+    expect(visible).toBe(true)
+  })
+})

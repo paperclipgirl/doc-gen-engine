@@ -1076,40 +1076,8 @@ function App() {
                           </div>
                         )}
                       </div>
-                      <p className="form-helper">Select a reusable component to generate.</p>
                     </div>
                   )}
-
-                  {(() => {
-                    const selectedArea = AREA_OF_LAW.find((x) => x.area === areaOfLaw)
-                    const subs = selectedArea?.subs ?? []
-                    const isHld = templateId === 'hld'
-                    const jurisdictionRequired = isHld && subs.length > 0
-                    return (
-                      <div className="form-group">
-                        <label htmlFor="jurisdiction" className="form-label">
-                          Jurisdiction
-                          {jurisdictionRequired ? <span className="form-label-required"> (required for High-Level Design)</span> : <span className="form-label-optional"> (optional)</span>}
-                        </label>
-                        {subs.length > 0 ? (
-                          <select
-                            id="jurisdiction"
-                            className="select"
-                            value={subArea}
-                            onChange={(e) => setSubArea(e.target.value)}
-                            disabled={submitting || !!runId}
-                          >
-                            <option value="">— Select jurisdiction —</option>
-                            {subs.map((sub) => (
-                              <option key={sub} value={sub}>{sub}</option>
-                            ))}
-                          </select>
-                        ) : (
-                          <p className="form-helper" style={{ marginTop: 0 }}>Same as practice area (no sub-areas).</p>
-                        )}
-                      </div>
-                    )
-                  })()}
 
                   <div className="form-group">
                     <label htmlFor="context" className="form-label">Additional Context <span className="form-label-optional">(optional)</span></label>
@@ -1122,11 +1090,6 @@ function App() {
                       placeholder={solutionType === 'client_practice_solution' ? 'e.g. Mid-sized firm, litigation focus; Cross-border regulatory work; Corporate transactions intake' : 'e.g. Client is a mid-sized law firm implementing Clio Operate for litigation matters; Workflow must support cross-border regulatory investigations'}
                       rows={3}
                     />
-                    <p className="form-helper">
-                      {solutionType === 'client_practice_solution'
-                        ? 'Describe the client, firm constraints, or matter types.'
-                        : 'Provide additional context about the law firm, client matter types, operational requirements, or constraints.'}
-                    </p>
                   </div>
                 </div>
               )}
@@ -1271,14 +1234,6 @@ function App() {
                             {!isEditing && isEdited(s.section_id) && (
                               <span className="section-edited-label">Edited</span>
                             )}
-                            <button
-                              type="button"
-                              className="btn-secondary btn-sm"
-                              onClick={() => handleRerunSection(s.section_id)}
-                              disabled={rerunningSectionId !== null}
-                            >
-                              {rerunningSectionId === s.section_id ? 'Rerunning…' : 'Rerun'}
-                            </button>
                           </div>
                           {showPrompt && (
                             <div className="section-prompt-wrap">
@@ -1331,6 +1286,20 @@ function App() {
                                 </div>
                               )}
                               <div className="section-icon-bar">
+                                <button
+                                  type="button"
+                                  className={`section-icon-btn ${rerunningSectionId === s.section_id ? 'is-active' : ''}`}
+                                  onClick={() => handleRerunSection(s.section_id)}
+                                  disabled={rerunningSectionId !== null}
+                                  data-tooltip={rerunningSectionId === s.section_id ? 'Rerunning…' : 'Rerun this section'}
+                                  aria-label={rerunningSectionId === s.section_id ? 'Rerunning…' : 'Rerun this section'}
+                                >
+                                  {rerunningSectionId === s.section_id ? (
+                                    <span className="spinner" style={{ width: 16, height: 16 }} aria-hidden />
+                                  ) : (
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M23 4v6h-6" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" /></svg>
+                                  )}
+                                </button>
                                 <button
                                   type="button"
                                   className={`section-icon-btn ${showPrompt ? 'is-active' : ''}`}
