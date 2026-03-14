@@ -1,0 +1,199 @@
+{
+  "id": "micro_solution",
+  "name": "Micro Solution",
+  "description": "Clio Operate Micro Solution accelerator design template.",
+  "sections": [
+    {
+      "id": "project_instructions",
+      "prompt_path": "micro_solution/00_project_instructions.txt",
+      "display_name": "Project Instructions",
+      "progress_message": "Confirming Micro Solution scope",
+      "depends_on": []
+    },
+    {
+      "id": "accelerator_name",
+      "prompt_path": "micro_solution/01_accelerator_name.txt",
+      "display_name": "Accelerator Name",
+      "progress_message": "Generating accelerator name",
+      "depends_on": []
+    },
+    {
+      "id": "how_to_use_this_document",
+      "prompt_path": "micro_solution/03_how_to_use_this_document.txt",
+      "display_name": "How To Use This Document",
+      "progress_message": "Drafting how to use this document",
+      "depends_on": []
+    },
+    {
+      "id": "building_blocks_purpose_use_cases",
+      "prompt_path": "micro_solution/04A_building_blocks_purpose_use_cases.txt",
+      "display_name": "Building Blocks – Purpose and Use Cases",
+      "progress_message": "Defining building blocks purpose and use cases",
+      "depends_on": []
+    },
+    {
+      "id": "building_blocks_user_journeys",
+      "prompt_path": "micro_solution/04B_building_blocks_user_journeys.txt",
+      "display_name": "Building Blocks – User Journeys",
+      "progress_message": "Defining building blocks user journeys",
+      "depends_on": []
+    },
+    {
+      "id": "solution_context",
+      "prompt_path": "micro_solution/04C_solution_context.txt",
+      "display_name": "Solution Context",
+      "progress_message": "Drafting solution context",
+      "depends_on": []
+    },
+    {
+      "id": "solution_context_diagram_prompt",
+      "prompt_path": "micro_solution/04D_solution_context_diagram_prompt.txt",
+      "display_name": "Solution Context Diagram",
+      "progress_message": "Generating solution context diagram prompt",
+      "depends_on": []
+    },
+    {
+      "id": "work_type_context",
+      "prompt_path": "micro_solution/05_work_type_context.txt",
+      "display_name": "Work Type Context",
+      "progress_message": "Defining work type context",
+      "depends_on": []
+    },
+    {
+      "id": "work_types_inventory",
+      "prompt_path": "micro_solution/06_work_types_inventory.txt",
+      "display_name": "Work Types Inventory",
+      "progress_message": "Building work types inventory",
+      "depends_on": []
+    },
+    {
+      "id": "subtypes",
+      "prompt_path": "micro_solution/07_subtypes.txt",
+      "display_name": "Subtypes",
+      "progress_message": "Defining subtypes",
+      "depends_on": []
+    },
+    {
+      "id": "phase_model",
+      "prompt_path": "micro_solution/09_phase_model.txt",
+      "display_name": "Phase Model",
+      "progress_message": "Drafting phase model",
+      "depends_on": []
+    },
+    {
+      "id": "phase_transitions",
+      "prompt_path": "micro_solution/10_phase_transitions.txt",
+      "display_name": "Phase Transitions",
+      "progress_message": "Defining phase transitions",
+      "depends_on": []
+    },
+    {
+      "id": "key_relationships",
+      "prompt_path": "micro_solution/11_key_relationships.txt",
+      "display_name": "Key Relationships",
+      "progress_message": "Documenting key relationships",
+      "depends_on": []
+    },
+    {
+      "id": "participants",
+      "prompt_path": "micro_solution/12_participants.txt",
+      "display_name": "Participants",
+      "progress_message": "Defining participants",
+      "depends_on": []
+    },
+    {
+      "id": "key_dates",
+      "prompt_path": "micro_solution/13_key_dates.txt",
+      "display_name": "Key Dates",
+      "progress_message": "Defining key dates",
+      "depends_on": []
+    },
+    {
+      "id": "data_capture",
+      "prompt_path": "micro_solution/14_data_capture.txt",
+      "display_name": "Data Capture",
+      "progress_message": "Defining data capture",
+      "depends_on": []
+    },
+    {
+      "id": "menu",
+      "prompt_path": "micro_solution/15_menu.txt",
+      "display_name": "Menu",
+      "progress_message": "Defining menu",
+      "depends_on": []
+    },
+    {
+      "id": "workflow_catalogue",
+      "prompt_path": "micro_solution/16_workflow_catalogue.txt",
+      "display_name": "Workflow Catalogue",
+      "progress_message": "Building workflow catalogue",
+      "depends_on": []
+    },
+    {
+      "id": "impl_notes_data_capture",
+      "prompt_path": "micro_solution/18_impl_notes_data_capture.txt",
+      "display_name": "Implementation Notes – Data Capture",
+      "progress_message": "Documenting implementation notes for data capture",
+      "depends_on": []
+    },
+    {
+      "id": "impl_notes_data_validation",
+      "prompt_path": "micro_solution/19_impl_notes_data_validation.txt",
+      "display_name": "Implementation Notes – Data Validation",
+      "progress_message": "Documenting implementation notes for data validation",
+      "depends_on": []
+    },
+    {
+      "id": "impl_notes_workflow_assumptions",
+      "prompt_path": "micro_solution/20_impl_notes_workflow_assumptions.txt",
+      "display_name": "Implementation Notes – Workflow Assumptions",
+      "progress_message": "Documenting implementation notes for workflow assumptions",
+      "depends_on": []
+    },
+    {
+      "id": "impl_notes_solution_integration",
+      "prompt_path": "micro_solution/21_impl_notes_solution_integration.txt",
+      "display_name": "Implementation Notes – Solution Integration",
+      "progress_message": "Documenting implementation notes for solution integration",
+      "depends_on": []
+    },
+    {
+      "id": "document_control",
+      "prompt_path": "micro_solution/22_document_control.txt",
+      "display_name": "Document Control",
+      "progress_message": "Defining document control",
+      "depends_on": []
+    },
+    {
+      "id": "design_reviewer_pass",
+      "prompt_path": "micro_solution/90_design_reviewer_pass.txt",
+      "display_name": "Design Reviewer Pass",
+      "progress_message": "Running design reviewer pass",
+      "depends_on": [],
+      "section_type": "meta"
+    },
+    {
+      "id": "accelerator_library_fit_check",
+      "prompt_path": "micro_solution/91_accelerator_library_fit_check.txt",
+      "display_name": "Accelerator Library Fit Check",
+      "progress_message": "Checking accelerator library fit",
+      "depends_on": [],
+      "section_type": "meta"
+    },
+    {
+      "id": "minimum_viable_accelerator_check",
+      "prompt_path": "micro_solution/92_minimum_viable_accelerator_check.txt",
+      "display_name": "Minimum Viable Accelerator Check",
+      "progress_message": "Running minimum viable accelerator check",
+      "depends_on": [],
+      "section_type": "meta"
+    },
+    {
+      "id": "marketing_copy",
+      "prompt_path": "micro_solution/30_marketing_copy.txt",
+      "display_name": "Marketing Copy",
+      "progress_message": "Generating marketing copy",
+      "depends_on": []
+    }
+  ]
+}
