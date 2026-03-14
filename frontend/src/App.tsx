@@ -427,6 +427,17 @@ function App() {
     refreshRunHistory()
   }
 
+  const clearForm = () => {
+    setTemplateId(templates[0]?.id ?? '')
+    setComponent('')
+    setAreaOfLaw('')
+    setSubArea('')
+    setTopic('')
+    setContext('')
+    setClientName('')
+    setError(null)
+  }
+
   const handleOpenRun = (id: string) => {
     setError(null)
     setRunId(id)
@@ -591,6 +602,27 @@ function App() {
     currentContent[sectionContentKey(sectionId)] ??
     run?.sections?.find((s) => s.section_id === sectionId)?.content ??
     ''
+
+  /** Full document text for copy-to-clipboard (sections joined with --- separator, or assembled content). */
+  const getDocumentPreviewFullText = (): string | null => {
+    if (docPreviewState !== 'completed' || !run) return null
+    if (run.section_ids && run.section_ids.length > 0) {
+      return run.section_ids
+        .map((id) => getSectionContentForPreview(id).trim())
+        .join('\n\n---\n\n')
+    }
+    if (run.assembled?.content) return run.assembled.content
+    return null
+  }
+
+  const handleCopyDocumentToClipboard = () => {
+    const text = getDocumentPreviewFullText()
+    if (text == null) return
+    navigator.clipboard.writeText(text).then(
+      () => setToast({ message: 'Copied to clipboard.', type: 'success' }),
+      () => setToast({ message: 'Copy failed.', type: 'error' })
+    )
+  }
 
   const updateSectionContentFromPreview = (sectionId: string, value: string) => {
     const k = sectionContentKey(sectionId)
@@ -981,6 +1013,9 @@ function App() {
                 {submitting && <span className="spinner" />}
                 {submitting ? 'Generating…' : 'Generate'}
               </button>
+              <button type="button" className="btn-secondary" onClick={clearForm} disabled={submitting || !!runId}>
+                Clear
+              </button>
               {runId && (
                 <button type="button" className="btn-secondary" onClick={reset}>
                   New run
@@ -993,7 +1028,19 @@ function App() {
         {error && <p style={{ color: 'var(--danger)', marginBottom: 'var(--space-2)', fontSize: 'var(--text-sm)' }} role="alert">{error}</p>}
 
         <section className="doc-preview">
-          <h2 className="doc-preview-title">Document preview</h2>
+          <div className="doc-preview-header">
+            <h2 className="doc-preview-title">Document preview</h2>
+            {getDocumentPreviewFullText() != null && (
+              <button
+                type="button"
+                className="doc-preview-copy"
+                onClick={handleCopyDocumentToClipboard}
+                title="Copy full document to clipboard (retains formatting)"
+              >
+                Copy to clipboard
+              </button>
+            )}
+          </div>
           {docPreviewState === 'none' && (
             <div className="doc-preview-empty">
               Select a run from the sidebar or generate a document to see the preview.
