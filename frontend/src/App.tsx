@@ -214,10 +214,16 @@ function App() {
   const [templates, setTemplates] = useState<TemplateSummary[]>([])
   const [templateId, setTemplateId] = useState<string>('')
   const [component, setComponent] = useState<string>('')
+  const [componentPickerOpen, setComponentPickerOpen] = useState(false)
+  const [componentSearchQuery, setComponentSearchQuery] = useState('')
+  const componentPickerContainerRef = useRef<HTMLDivElement>(null)
   const [clientName, setClientName] = useState('')
   const [topic, setTopic] = useState('')
   const [areaOfLaw, setAreaOfLaw] = useState('')
   const [subArea, setSubArea] = useState('')
+  const [areaLawPickerOpen, setAreaLawPickerOpen] = useState(false)
+  const [areaLawSearchQuery, setAreaLawSearchQuery] = useState('')
+  const areaLawPickerContainerRef = useRef<HTMLDivElement>(null)
   const [context, setContext] = useState('')
   const [runId, setRunId] = useState<string | null>(null)
   const [run, setRun] = useState<RunDetail | null>(null)
@@ -339,6 +345,28 @@ function App() {
   useEffect(() => {
     if (run?.status === 'completed') setFormExpanded(false)
   }, [run?.status])
+
+  // Close component picker when clicking outside
+  useEffect(() => {
+    if (!componentPickerOpen) return
+    const handle = (e: MouseEvent) => {
+      const el = componentPickerContainerRef.current
+      if (el && !el.contains(e.target as Node)) setComponentPickerOpen(false)
+    }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [componentPickerOpen])
+
+  // Close area of law picker when clicking outside
+  useEffect(() => {
+    if (!areaLawPickerOpen) return
+    const handle = (e: MouseEvent) => {
+      const el = areaLawPickerContainerRef.current
+      if (el && !el.contains(e.target as Node)) setAreaLawPickerOpen(false)
+    }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [areaLawPickerOpen])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -586,7 +614,7 @@ function App() {
 
       {/* Main: form or run summary + document preview */}
       <main className={`app-main ${isReviewMode ? 'app-main--review-mode' : ''}`}>
-        <h1>Document Generation Engine</h1>
+        <h1>Clio Operate Accelerator Factory</h1>
 
         {showCollapsedRunSummary && run ? (
           <div className="run-context-panel">
@@ -636,69 +664,235 @@ function App() {
                 ))}
               </select>
             </div>
-            <div className="form-group">
-              <label htmlFor="component" className="form-label">Component <span className="form-label-optional">(optional)</span></label>
-              <select
-                id="component"
-                className="select"
-                value={component}
-                onChange={(e) => setComponent(e.target.value)}
-                disabled={submitting || !!runId}
-              >
-                <option value="">Select component</option>
-                {COMPONENT_GROUPS.map((group) => (
-                  <optgroup key={group.domain} label={group.domain}>
-                    {group.components.map((name) => (
-                      <option key={name} value={name}>{name}</option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
+            <div className="form-group" ref={componentPickerContainerRef}>
+              <label htmlFor="component-picker" className="form-label">Component <span className="form-label-optional">(optional)</span></label>
+              <div className="component-picker">
+                <button
+                  id="component-picker"
+                  type="button"
+                  className="component-picker-trigger"
+                  onClick={() => !(submitting || !!runId) && setComponentPickerOpen((o) => !o)}
+                  disabled={submitting || !!runId}
+                  aria-haspopup="listbox"
+                  aria-expanded={componentPickerOpen}
+                  aria-label={component || 'Select component'}
+                >
+                  <span className="component-picker-trigger-text">{component || 'Select component'}</span>
+                  <span className="component-picker-trigger-icon" aria-hidden>▾</span>
+                </button>
+                {componentPickerOpen && (
+                  <div
+                    className="component-picker-popover"
+                    role="listbox"
+                    aria-label="Component list"
+                  >
+                    <div className="component-picker-search-wrap">
+                      <input
+                        type="text"
+                        className="component-picker-search"
+                        placeholder="Search components…"
+                        value={componentSearchQuery}
+                        onChange={(e) => setComponentSearchQuery(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Escape') {
+                            setComponentPickerOpen(false)
+                            e.preventDefault()
+                          }
+                        }}
+                        autoFocus
+                      />
+                    </div>
+                    <div className="component-picker-list">
+                      {COMPONENT_GROUPS.map((group) => {
+                        const q = componentSearchQuery.trim().toLowerCase()
+                        const filtered = q
+                          ? group.components.filter((name) => name.toLowerCase().includes(q))
+                          : group.components
+                        if (filtered.length === 0) return null
+                        return (
+                          <div key={group.domain} className="component-picker-group">
+                            <div className="component-picker-group-label">{group.domain}</div>
+                            <ul className="component-picker-items" role="group" aria-label={group.domain}>
+                              {filtered.map((name) => {
+                                const isSelected = component === name
+                                const matchStart = q ? name.toLowerCase().indexOf(q) : -1
+                                const label =
+                                  matchStart >= 0 && q
+                                    ? [
+                                        name.slice(0, matchStart),
+                                        name.slice(matchStart, matchStart + q.length),
+                                        name.slice(matchStart + q.length),
+                                      ]
+                                    : [name]
+                                return (
+                                  <li key={name} role="option" aria-selected={isSelected}>
+                                    <button
+                                      type="button"
+                                      className={`component-picker-item ${isSelected ? 'is-selected' : ''}`}
+                                      onClick={() => {
+                                        setComponent(name)
+                                        setComponentPickerOpen(false)
+                                        setComponentSearchQuery('')
+                                      }}
+                                    >
+                                      {label.length === 3 ? (
+                                        <>
+                                          {label[0]}
+                                          <mark className="component-picker-match">{label[1]}</mark>
+                                          {label[2]}
+                                        </>
+                                      ) : (
+                                        name
+                                      )}
+                                    </button>
+                                  </li>
+                                )
+                              })}
+                            </ul>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
             {templateId && (
-              <>
-                <div className="form-group">
-                  <label htmlFor="areaOfLaw" className="form-label">
-                    Area of Law <span className="form-label-optional">(required)</span>
-                  </label>
-                  <select
-                    id="areaOfLaw"
-                    className="select"
-                    value={areaOfLaw}
-                    onChange={(e) => { setAreaOfLaw(e.target.value); setSubArea('') }}
+              <div className="form-group" ref={areaLawPickerContainerRef}>
+                <label htmlFor="area-law-picker" className="form-label">
+                  Area of Law <span className="form-label-optional">(required)</span>
+                </label>
+                <div className="component-picker">
+                  <button
+                    id="area-law-picker"
+                    type="button"
+                    className="component-picker-trigger"
+                    onClick={() => !(submitting || !!runId) && setAreaLawPickerOpen((o) => !o)}
                     disabled={submitting || !!runId}
+                    aria-haspopup="listbox"
+                    aria-expanded={areaLawPickerOpen}
+                    aria-label={areaOfLaw ? (subArea ? `${areaOfLaw} – ${subArea}` : areaOfLaw) : 'Select area of law'}
                   >
-                    <option value="">— Select area of law —</option>
-                    {AREA_OF_LAW.map(({ area }) => (
-                      <option key={area} value={area}>{area}</option>
-                    ))}
-                  </select>
-                </div>
-                {areaOfLaw && (() => {
-                  const selected = AREA_OF_LAW.find((r) => r.area === areaOfLaw)
-                  const subs = selected?.subs ?? []
-                  if (subs.length === 0) return null
-                  return (
-                    <div className="form-group">
-                      <label htmlFor="subArea" className="form-label">
-                        Jurisdiction <span className="form-label-optional">(optional)</span>
-                      </label>
-                      <select
-                        id="subArea"
-                        className="select"
-                        value={subArea}
-                        onChange={(e) => setSubArea(e.target.value)}
-                        disabled={submitting || !!runId}
-                      >
-                        <option value="">— Select sub-area (optional) —</option>
-                        {subs.map((sub) => (
-                          <option key={sub} value={sub}>{sub}</option>
-                        ))}
-                      </select>
+                    <span className="component-picker-trigger-text">
+                      {areaOfLaw ? (subArea ? `${areaOfLaw} – ${subArea}` : areaOfLaw) : 'Select area of law'}
+                    </span>
+                    <span className="component-picker-trigger-icon" aria-hidden>▾</span>
+                  </button>
+                  {areaLawPickerOpen && (
+                    <div
+                      className="component-picker-popover"
+                      role="listbox"
+                      aria-label="Area of law list"
+                    >
+                      <div className="component-picker-search-wrap">
+                        <input
+                          type="text"
+                          className="component-picker-search"
+                          placeholder="Search area of law…"
+                          value={areaLawSearchQuery}
+                          onChange={(e) => setAreaLawSearchQuery(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Escape') {
+                              setAreaLawPickerOpen(false)
+                              e.preventDefault()
+                            }
+                          }}
+                          autoFocus
+                        />
+                      </div>
+                      <div className="component-picker-list">
+                        {AREA_OF_LAW.map(({ area, subs }) => {
+                          const q = areaLawSearchQuery.trim().toLowerCase()
+                          const areaMatches = !q || area.toLowerCase().includes(q)
+                          const matchingSubs = !q ? subs : subs.filter((sub) => sub.toLowerCase().includes(q))
+                          const hasAreaItem = subs.length === 0 ? areaMatches : areaMatches
+                          const hasSubItems = matchingSubs.length > 0
+                          if (!hasAreaItem && !hasSubItems) return null
+                          return (
+                            <div key={area} className="component-picker-group">
+                              <div className="component-picker-group-label">{area}</div>
+                              <ul className="component-picker-items" role="group" aria-label={area}>
+                                {subs.length === 0 ? (
+                                  <li role="option" aria-selected={areaOfLaw === area && !subArea}>
+                                    <button
+                                      type="button"
+                                      className={`component-picker-item ${areaOfLaw === area && !subArea ? 'is-selected' : ''}`}
+                                      onClick={() => {
+                                        setAreaOfLaw(area)
+                                        setSubArea('')
+                                        setAreaLawPickerOpen(false)
+                                        setAreaLawSearchQuery('')
+                                      }}
+                                    >
+                                      {q && areaMatches ? (() => {
+                                        const matchStart = area.toLowerCase().indexOf(q)
+                                        return matchStart >= 0 ? (
+                                          <>
+                                            {area.slice(0, matchStart)}
+                                            <mark className="component-picker-match">{area.slice(matchStart, matchStart + q.length)}</mark>
+                                            {area.slice(matchStart + q.length)}
+                                          </>
+                                        ) : area
+                                      })() : area}
+                                    </button>
+                                  </li>
+                                ) : (
+                                  <>
+                                    {areaMatches && (
+                                      <li role="option" aria-selected={areaOfLaw === area && !subArea}>
+                                        <button
+                                          type="button"
+                                          className={`component-picker-item ${areaOfLaw === area && !subArea ? 'is-selected' : ''}`}
+                                          onClick={() => {
+                                            setAreaOfLaw(area)
+                                            setSubArea('')
+                                            setAreaLawPickerOpen(false)
+                                            setAreaLawSearchQuery('')
+                                          }}
+                                        >
+                                          {area}
+                                        </button>
+                                      </li>
+                                    )}
+                                    {matchingSubs.map((sub) => {
+                                      const isSelected = areaOfLaw === area && subArea === sub
+                                      return (
+                                        <li key={sub} role="option" aria-selected={isSelected}>
+                                          <button
+                                            type="button"
+                                            className={`component-picker-item ${isSelected ? 'is-selected' : ''}`}
+                                            onClick={() => {
+                                              setAreaOfLaw(area)
+                                              setSubArea(sub)
+                                              setAreaLawPickerOpen(false)
+                                              setAreaLawSearchQuery('')
+                                            }}
+                                          >
+                                            {q ? (() => {
+                                              const matchStart = sub.toLowerCase().indexOf(q)
+                                              return matchStart >= 0 ? (
+                                                <>
+                                                  {sub.slice(0, matchStart)}
+                                                  <mark className="component-picker-match">{sub.slice(matchStart, matchStart + q.length)}</mark>
+                                                  {sub.slice(matchStart + q.length)}
+                                                </>
+                                              ) : sub
+                                            })() : sub}
+                                          </button>
+                                        </li>
+                                      )
+                                    })}
+                                  </>
+                                )}
+                              </ul>
+                            </div>
+                          )
+                        })}
+                      </div>
                     </div>
-                  )
-                })()}
-              </>
+                  )}
+                </div>
+              </div>
             )}
             {(templateId === 'implementation_guidance' || templateId === 'workflow_pattern') ? (
               <>
