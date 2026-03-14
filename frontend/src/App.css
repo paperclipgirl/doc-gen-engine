@@ -299,6 +299,11 @@
   font-weight: var(--fw-normal);
 }
 
+.form-label-required {
+  color: var(--primary);
+  font-weight: var(--fw-normal);
+}
+
 .form-section-label {
   font-family: var(--font-ui);
   font-size: var(--text-base);
@@ -313,6 +318,64 @@
   color: var(--text-muted);
   margin: var(--space-1) 0 0;
   line-height: var(--leading-normal);
+}
+
+/* Advanced configuration collapsible */
+.form-advanced-section {
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-2);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.form-advanced-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+  background: var(--bg-page);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s ease;
+}
+
+.form-advanced-toggle:hover {
+  background: var(--border);
+}
+
+.form-advanced-toggle-icon {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.form-advanced-fields {
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-panel);
+  border-top: var(--border-width) solid var(--border);
+}
+
+.form-advanced-fields .form-group {
+  margin-bottom: var(--space-2);
+}
+
+.form-advanced-fields .form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-group--deemphasized {
+  opacity: 0.75;
+}
+
+.form-group--deemphasized .form-label,
+.form-group--deemphasized .form-helper {
+  color: var(--text-muted);
 }
 
 /* Inputs: consistent height, minimal radius */
