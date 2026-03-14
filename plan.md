@@ -1,4 +1,4 @@
-# Clio Operate Accelerator Factory — Plan
+# Clio Operate Solution Factory — Plan
 
 ## Implementation sections (complete)
 
@@ -36,7 +36,7 @@ All 13 prompts in `backend/prompts/implementation_guidance/*.txt` now use `{{top
 - **Run flow:** Create run → poll status → section outputs and assembled document; run history sidebar; open run from list.
 - **Review mode:** After generation, form collapses to a compact run-context panel; document preview is primary; “Edit inputs” and “New run” available.
 - **Section UX:** View prompt, edit section content, reset to generated; per-section feedback (category + comment) for prompt improvement signals; versioning (original / current / suggested) with Accept / Keep current.
-- **Branding:** Clio Operate Accelerator Factory (app title, API title, docs).
+- **Branding:** Clio Operate Solution Factory (app title, API title, docs).
 
 ## Roadmap / next steps
 

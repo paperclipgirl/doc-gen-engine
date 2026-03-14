@@ -1,4 +1,4 @@
-/* Clio Operate Accelerator Factory — Design tokens (8px grid, enterprise operations) */
+/* Clio Operate Solution Factory — Design tokens (8px grid, enterprise operations) */
 
 :root {
   /* Spacing (8px grid) — tightened for operational density */
@@ -297,6 +297,22 @@
 .form-label-optional {
   color: var(--text-muted);
   font-weight: var(--fw-normal);
+}
+
+.form-section-label {
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+  margin: 0 0 var(--space-2);
+  line-height: var(--leading-snug);
+}
+
+.form-helper {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin: var(--space-1) 0 0;
+  line-height: var(--leading-normal);
 }
 
 /* Inputs: consistent height, minimal radius */

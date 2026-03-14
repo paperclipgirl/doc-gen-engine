@@ -1,6 +1,6 @@
-# Clio Operate Accelerator Factory
+# Clio Operate Solution Factory
 
-Generate accelerator documents from templates: choose a template, component (North America menu), and area of law; then run sequential prompt execution to produce section outputs and an assembled document. File-based storage, optional section feedback, and a review-mode UI.
+Generate reusable accelerators and client practice solutions: define solution type, practice area, and output type; then run sequential prompt execution to produce section outputs and an assembled document. File-based storage, optional section feedback, and a review-mode UI.
 
 ## Setup
 

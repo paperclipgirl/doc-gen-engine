@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.routes import router as api_router
 
-app = FastAPI(title="Clio Operate Accelerator Factory", version="0.1.0")
+app = FastAPI(title="Clio Operate Solution Factory", version="0.1.0")
 
 # CORS: default to local dev; set CORS_ORIGINS (comma-separated) in production.
 _origins = os.environ.get("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").strip().split(",")
@@ -28,4 +28,4 @@ app.include_router(api_router)
 
 @app.get("/")
 def root():
-    return {"service": "Clio Operate Accelerator Factory", "docs": "/docs"}
+    return {"service": "Clio Operate Solution Factory", "docs": "/docs"}
