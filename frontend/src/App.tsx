@@ -18,6 +18,110 @@ import {
 
 const POLL_INTERVAL_MS = 1500
 
+/** Area of Law (first level) and optional sub-areas (second level) for jurisdiction dropdown. */
+const AREA_OF_LAW: { area: string; subs: string[] }[] = [
+  { area: 'Agriculture Law', subs: [] },
+  {
+    area: 'Banking Law',
+    subs: [
+      'Bank Secrecy and Anti-Money Laundering Law',
+      'Banking Operations Law',
+      'Cryptocurrency Law',
+    ],
+  },
+  {
+    area: 'Bankruptcy, Insolvency, and Restructuring Law',
+    subs: ['Corporate Insolvency Law', 'Personal Insolvency Law'],
+  },
+  { area: 'Cannabis Law', subs: [] },
+  {
+    area: 'Commercial and Trade Law',
+    subs: [
+      'Admiralty and Maritime Law',
+      'Antitrust and Competition Law',
+      'Commercial Transactions Law',
+      'Consumer Protection Law',
+      'Franchise Law',
+      'Trade Law',
+    ],
+  },
+  {
+    area: 'Constitutional and Civil Rights Law',
+    subs: [
+      'Discrimination Law',
+      'Environmental, Social, and Governance Law',
+      'Individual Rights Law',
+      'Political Rights Law',
+    ],
+  },
+  {
+    area: 'Contract Law',
+    subs: [
+      'Civil Contract Law',
+      'Commercial Transactions Law',
+      'Employment Contracts Law',
+      'Government Contracts Law',
+      'Independent Contractor Law',
+      'Property Rights and Transactions Law',
+    ],
+  },
+  {
+    area: 'Corporate Law',
+    subs: [
+      'Business Organizations Law',
+      'Corporate Governance Law',
+      'Mergers and Acquisitions Law',
+    ],
+  },
+  {
+    area: 'Criminal Law',
+    subs: [
+      'Anti-Corruption Law',
+      'Asset Forfeiture Law',
+      'Business and Financial Crimes Law',
+      'Cybercrime Law',
+      'Organized Crime Law',
+      'Prison Law',
+    ],
+  },
+  { area: 'Education Law', subs: [] },
+  {
+    area: 'Energy Law',
+    subs: [
+      'Energy Sales and Transmission Law',
+      'Nuclear Law',
+      'Oil and Gas Law',
+      'Renewable Energy Law',
+    ],
+  },
+  {
+    area: 'Environmental and Natural Resource Law',
+    subs: [
+      'Air Quality Law',
+      'Chemical Safety Law',
+      'Contaminant Cleanup Law',
+      'Environmental, Social, and Governance Law',
+      'Fish and Game Law',
+      'Forest Resources Law',
+      'Impact Assessment Law',
+      'Mineral Resources Law',
+      'Waste Management Law',
+      'Water Quality Law',
+      'Water Resources and Wetlands Law',
+      'Wildlife and Plants Law',
+    ],
+  },
+  {
+    area: 'Finance and Lending Law',
+    subs: [
+      'Commercial Finance Law',
+      'Debt Collection Law',
+      'Lender Liability Law',
+      'Structured Finance Law',
+    ],
+  },
+]
+
 function formatDate(iso: string): string {
   try {
     const d = new Date(iso)
@@ -33,7 +137,8 @@ function App() {
   const [clientName, setClientName] = useState('')
   const [effectiveDate, setEffectiveDate] = useState('')
   const [topic, setTopic] = useState('')
-  const [jurisdiction, setJurisdiction] = useState('')
+  const [areaOfLaw, setAreaOfLaw] = useState('')
+  const [subArea, setSubArea] = useState('')
   const [context, setContext] = useState('')
   const [runId, setRunId] = useState<string | null>(null)
   const [run, setRun] = useState<RunDetail | null>(null)
@@ -107,8 +212,10 @@ function App() {
     setSubmitting(true)
     const useTopicJurisdictionContext =
       templateId === 'implementation_guidance' || templateId === 'workflow_pattern'
+    const jurisdictionValue =
+      subArea ? `${areaOfLaw} – ${subArea}` : areaOfLaw
     const structured_input = useTopicJurisdictionContext
-      ? { topic, jurisdiction, context: context || '' }
+      ? { topic, jurisdiction: jurisdictionValue, context: context || '' }
       : { client_name: clientName, effective_date: effectiveDate }
     createRun({
       template_id: templateId,
@@ -205,18 +312,53 @@ function App() {
               />
             </div>
             <div style={{ marginBottom: '1rem' }}>
-              <label htmlFor="jurisdiction" style={{ display: 'block', marginBottom: '0.25rem' }}>
-                Jurisdiction <span style={{ color: '#888' }}>(required)</span>
+              <label htmlFor="areaOfLaw" style={{ display: 'block', marginBottom: '0.25rem' }}>
+                Area of Law <span style={{ color: '#888' }}>(required)</span>
               </label>
-              <input
-                id="jurisdiction"
-                type="text"
-                value={jurisdiction}
-                onChange={(e) => setJurisdiction(e.target.value)}
+              <select
+                id="areaOfLaw"
+                value={areaOfLaw}
+                onChange={(e) => {
+                  setAreaOfLaw(e.target.value)
+                  setSubArea('')
+                }}
                 disabled={submitting || !!runId}
                 style={{ padding: '0.35rem', width: '100%', maxWidth: '20rem' }}
-              />
+              >
+                <option value="">— Select area of law —</option>
+                {AREA_OF_LAW.map(({ area }) => (
+                  <option key={area} value={area}>
+                    {area}
+                  </option>
+                ))}
+              </select>
             </div>
+            {areaOfLaw && (() => {
+              const selected = AREA_OF_LAW.find((r) => r.area === areaOfLaw)
+              const subs = selected?.subs ?? []
+              if (subs.length === 0) return null
+              return (
+                <div style={{ marginBottom: '1rem' }}>
+                  <label htmlFor="subArea" style={{ display: 'block', marginBottom: '0.25rem' }}>
+                    Jurisdiction <span style={{ color: '#888' }}>(optional)</span>
+                  </label>
+                  <select
+                    id="subArea"
+                    value={subArea}
+                    onChange={(e) => setSubArea(e.target.value)}
+                    disabled={submitting || !!runId}
+                    style={{ padding: '0.35rem', width: '100%', maxWidth: '20rem' }}
+                  >
+                    <option value="">— Select sub-area (optional) —</option>
+                    {subs.map((sub) => (
+                      <option key={sub} value={sub}>
+                        {sub}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )
+            })()}
             <div style={{ marginBottom: '1rem' }}>
               <label htmlFor="context" style={{ display: 'block', marginBottom: '0.25rem' }}>
                 Context <span style={{ color: '#888' }}>(optional)</span>
@@ -270,7 +412,7 @@ function App() {
               submitting ||
               !templateId ||
               ((templateId === 'implementation_guidance' || templateId === 'workflow_pattern') &&
-                (!topic.trim() || !jurisdiction.trim()))
+                (!topic.trim() || !areaOfLaw.trim()))
             }
           >
             {submitting ? 'Starting…' : 'Generate'}
