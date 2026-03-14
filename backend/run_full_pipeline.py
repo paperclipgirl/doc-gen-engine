@@ -13,8 +13,8 @@ from src.core.runner import run_all_sections
 from src.core import storage
 
 RUN_ID = "section-d-pipeline-run"
-TEMPLATE_ID = "contract"
-STRUCTURED_INPUT = {"client_name": "Acme Corp", "jurisdiction": "Contract Law"}
+TEMPLATE_ID = "implementation_guidance"
+STRUCTURED_INPUT = {"topic": "Document pipeline", "jurisdiction": "Contract Law", "context": "Sample run"}
 
 
 def main():

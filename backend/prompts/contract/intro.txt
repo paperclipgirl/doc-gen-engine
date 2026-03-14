@@ -1,2 +1,0 @@
-# Introduction (placeholder)
-Generate a short contract introduction for client: {{clientName}}.

@@ -170,6 +170,7 @@ function App() {
   const [suggestedUpdate, setSuggestedUpdate] = useState<Record<string, string>>({})
   const [sectionEditMode, setSectionEditMode] = useState<string | null>(null)
   const [editingContent, setEditingContent] = useState('')
+  const [formExpanded, setFormExpanded] = useState(true)
   const previewEditableRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -264,6 +265,11 @@ function App() {
     })
   }, [runId, run])
 
+  // Auto-collapse form only after successful generation (not while loading)
+  useEffect(() => {
+    if (run?.status === 'completed') setFormExpanded(false)
+  }, [run?.status])
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -298,6 +304,7 @@ function App() {
     setRunId(null)
     setRun(null)
     setError(null)
+    setFormExpanded(true)
     refreshRunHistory()
   }
 
@@ -438,6 +445,9 @@ function App() {
     })
   }
 
+  const showCollapsedRunSummary = !!(runId && run && run.status === 'completed' && !formExpanded)
+  const isReviewMode = showCollapsedRunSummary
+
   const docPreviewState = !runId
     ? 'none'
     : !run
@@ -481,19 +491,21 @@ function App() {
         {runs.length === 0 ? (
           <p className="run-history-empty">No runs yet. Generate a document to get started.</p>
         ) : (
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          <ul className="run-history-list">
             {runs.map((r) => (
-              <li key={r.run_id}>
+              <li key={r.run_id} className="run-history-item">
                 <button
                   type="button"
-                  className={`run-card ${runId === r.run_id ? 'is-selected' : ''}`}
+                  className={`run-item ${runId === r.run_id ? 'is-selected' : ''}`}
                   onClick={() => handleOpenRun(r.run_id)}
                 >
-                  <span className="run-card-name">{templateName(r.template_id)}</span>
-                  <span className="run-card-meta">{formatDate(r.updated_at)}</span>
-                  {runId === r.run_id && run && (
-                    <span className={`run-card-status ${run.status}`}>{run.status}</span>
-                  )}
+                  <span className="run-item-title">{templateName(r.template_id)}</span>
+                  <span className="run-item-meta">
+                    <span className="run-item-date">{formatDate(r.updated_at)}</span>
+                    {runId === r.run_id && run && (
+                      <span className={`run-item-status run-item-status--${run.status}`}>{run.status}</span>
+                    )}
+                  </span>
                 </button>
               </li>
             ))}
@@ -501,137 +513,170 @@ function App() {
         )}
       </aside>
 
-      {/* Main: form + document preview */}
-      <main className="app-main">
+      {/* Main: form or run summary + document preview */}
+      <main className={`app-main ${isReviewMode ? 'app-main--review-mode' : ''}`}>
         <h1>Document Generation Engine</h1>
 
-        <form onSubmit={handleSubmit} className="form-card">
-          <h2>New document</h2>
-          <div className="form-group">
-            <label htmlFor="template" className="form-label">Template</label>
-            <select
-              id="template"
-              className="select"
-              value={templateId}
-              onChange={(e) => setTemplateId(e.target.value)}
-              disabled={submitting || !!runId}
-            >
-              {templates.map((t) => (
-                <option key={t.id} value={t.id}>{t.name}</option>
-              ))}
-            </select>
-          </div>
-          {templateId && (
-            <>
-              <div className="form-group">
-                <label htmlFor="areaOfLaw" className="form-label">
-                  Area of Law <span className="form-label-optional">(required)</span>
-                </label>
-                <select
-                  id="areaOfLaw"
-                  className="select"
-                  value={areaOfLaw}
-                  onChange={(e) => { setAreaOfLaw(e.target.value); setSubArea('') }}
-                  disabled={submitting || !!runId}
-                >
-                  <option value="">— Select area of law —</option>
-                  {AREA_OF_LAW.map(({ area }) => (
-                    <option key={area} value={area}>{area}</option>
-                  ))}
-                </select>
+        {showCollapsedRunSummary && run ? (
+          <div className="run-context-panel">
+            <div className="run-context-panel-body">
+              <div className="run-context-row run-context-row--template">
+                <span className="run-context-label">Template</span>
+                <span className="run-context-value">{templateName(run.template_id)}</span>
               </div>
-              {areaOfLaw && (() => {
-                const selected = AREA_OF_LAW.find((r) => r.area === areaOfLaw)
-                const subs = selected?.subs ?? []
-                if (subs.length === 0) return null
-                return (
-                  <div className="form-group">
-                    <label htmlFor="subArea" className="form-label">
-                      Jurisdiction <span className="form-label-optional">(optional)</span>
-                    </label>
-                    <select
-                      id="subArea"
-                      className="select"
-                      value={subArea}
-                      onChange={(e) => setSubArea(e.target.value)}
-                      disabled={submitting || !!runId}
-                    >
-                      <option value="">— Select sub-area (optional) —</option>
-                      {subs.map((sub) => (
-                        <option key={sub} value={sub}>{sub}</option>
-                      ))}
-                    </select>
-                  </div>
-                )
-              })()}
-            </>
-          )}
-          {(templateId === 'implementation_guidance' || templateId === 'workflow_pattern') ? (
-            <>
-              <div className="form-group">
-                <label htmlFor="topic" className="form-label">
-                  Topic <span className="form-label-optional">(required)</span>
-                </label>
-                <input
-                  id="topic"
-                  type="text"
-                  className="input"
-                  value={topic}
-                  onChange={(e) => setTopic(e.target.value)}
-                  disabled={submitting || !!runId}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="context" className="form-label">
-                  Context <span className="form-label-optional">(optional)</span>
-                </label>
-                <textarea
-                  id="context"
-                  className="textarea"
-                  value={context}
-                  onChange={(e) => setContext(e.target.value)}
-                  disabled={submitting || !!runId}
-                  placeholder="Additional context for the guidance"
-                  rows={3}
-                />
-              </div>
-            </>
-          ) : templateId ? (
-            <>
-              <div className="form-group">
-                <label htmlFor="clientName" className="form-label">Client name</label>
-                <input
-                  id="clientName"
-                  type="text"
-                  className="input"
-                  value={clientName}
-                  onChange={(e) => setClientName(e.target.value)}
-                  disabled={submitting || !!runId}
-                />
-              </div>
-            </>
-          ) : null}
-          <div className="form-actions">
-            <button
-              type="submit"
-              className="btn-primary"
-              disabled={
-                submitting ||
-                !templateId ||
-                !areaOfLaw.trim() ||
-                ((templateId === 'implementation_guidance' || templateId === 'workflow_pattern') && !topic.trim())
-              }
-            >
-              {submitting && <span className="spinner" />}
-              {submitting ? 'Generating…' : 'Generate'}
-            </button>
-            {runId && (
-              <button type="button" className="btn-secondary" onClick={reset}>
+              {run.structured_input && typeof run.structured_input === 'object' && Object.keys(run.structured_input).length > 0 && (
+                <div className="run-context-fields">
+                  {Object.entries(run.structured_input).map(([key, val]) => {
+                    if (val == null || String(val).trim() === '') return null
+                    const label = key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+                    return (
+                      <div key={key} className="run-context-row">
+                        <span className="run-context-label">{label}</span>
+                        <span className="run-context-value">{String(val)}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+            <div className="run-context-panel-actions">
+              <button type="button" className="run-context-action run-context-action--primary" onClick={() => setFormExpanded(true)}>
+                Edit inputs
+              </button>
+              <button type="button" className="run-context-action run-context-action--secondary" onClick={reset}>
                 New run
               </button>
-            )}
+            </div>
           </div>
-        </form>
+        ) : (
+          <form onSubmit={handleSubmit} className="form-card">
+            <h2>New document</h2>
+            <div className="form-group">
+              <label htmlFor="template" className="form-label">Template</label>
+              <select
+                id="template"
+                className="select"
+                value={templateId}
+                onChange={(e) => setTemplateId(e.target.value)}
+                disabled={submitting || !!runId}
+              >
+                {templates.map((t) => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+              </select>
+            </div>
+            {templateId && (
+              <>
+                <div className="form-group">
+                  <label htmlFor="areaOfLaw" className="form-label">
+                    Area of Law <span className="form-label-optional">(required)</span>
+                  </label>
+                  <select
+                    id="areaOfLaw"
+                    className="select"
+                    value={areaOfLaw}
+                    onChange={(e) => { setAreaOfLaw(e.target.value); setSubArea('') }}
+                    disabled={submitting || !!runId}
+                  >
+                    <option value="">— Select area of law —</option>
+                    {AREA_OF_LAW.map(({ area }) => (
+                      <option key={area} value={area}>{area}</option>
+                    ))}
+                  </select>
+                </div>
+                {areaOfLaw && (() => {
+                  const selected = AREA_OF_LAW.find((r) => r.area === areaOfLaw)
+                  const subs = selected?.subs ?? []
+                  if (subs.length === 0) return null
+                  return (
+                    <div className="form-group">
+                      <label htmlFor="subArea" className="form-label">
+                        Jurisdiction <span className="form-label-optional">(optional)</span>
+                      </label>
+                      <select
+                        id="subArea"
+                        className="select"
+                        value={subArea}
+                        onChange={(e) => setSubArea(e.target.value)}
+                        disabled={submitting || !!runId}
+                      >
+                        <option value="">— Select sub-area (optional) —</option>
+                        {subs.map((sub) => (
+                          <option key={sub} value={sub}>{sub}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )
+                })()}
+              </>
+            )}
+            {(templateId === 'implementation_guidance' || templateId === 'workflow_pattern') ? (
+              <>
+                <div className="form-group">
+                  <label htmlFor="topic" className="form-label">
+                    Topic <span className="form-label-optional">(required)</span>
+                  </label>
+                  <input
+                    id="topic"
+                    type="text"
+                    className="input"
+                    value={topic}
+                    onChange={(e) => setTopic(e.target.value)}
+                    disabled={submitting || !!runId}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="context" className="form-label">
+                    Context <span className="form-label-optional">(optional)</span>
+                  </label>
+                  <textarea
+                    id="context"
+                    className="textarea"
+                    value={context}
+                    onChange={(e) => setContext(e.target.value)}
+                    disabled={submitting || !!runId}
+                    placeholder="Additional context for the guidance"
+                    rows={3}
+                  />
+                </div>
+              </>
+            ) : templateId ? (
+              <>
+                <div className="form-group">
+                  <label htmlFor="clientName" className="form-label">Client name</label>
+                  <input
+                    id="clientName"
+                    type="text"
+                    className="input"
+                    value={clientName}
+                    onChange={(e) => setClientName(e.target.value)}
+                    disabled={submitting || !!runId}
+                  />
+                </div>
+              </>
+            ) : null}
+            <div className="form-actions">
+              <button
+                type="submit"
+                className="btn-primary"
+                disabled={
+                  submitting ||
+                  !templateId ||
+                  !areaOfLaw.trim() ||
+                  ((templateId === 'implementation_guidance' || templateId === 'workflow_pattern') && !topic.trim())
+                }
+              >
+                {submitting && <span className="spinner" />}
+                {submitting ? 'Generating…' : 'Generate'}
+              </button>
+              {runId && (
+                <button type="button" className="btn-secondary" onClick={reset}>
+                  New run
+                </button>
+              )}
+            </div>
+          </form>
+        )}
 
         {error && <p style={{ color: 'var(--danger)', marginBottom: 'var(--space-2)', fontSize: 'var(--text-sm)' }} role="alert">{error}</p>}
 
@@ -783,8 +828,8 @@ function App() {
                                   type="button"
                                   className={`section-icon-btn ${showPrompt ? 'is-active' : ''}`}
                                   onClick={() => togglePrompt(s.section_id)}
-                                  title={showPrompt ? 'Hide prompt' : 'View prompt'}
-                                  aria-label={showPrompt ? 'Hide prompt' : 'View prompt'}
+                                  data-tooltip={showPrompt ? 'Hide prompt' : 'View the prompt used to generate this section'}
+                                  aria-label={showPrompt ? 'Hide prompt' : 'View the prompt used to generate this section'}
                                 >
                                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>
                                 </button>
@@ -793,8 +838,8 @@ function App() {
                                     type="button"
                                     className="section-icon-btn"
                                     onClick={() => handleStartEdit(s.section_id)}
-                                    title="Edit section content"
-                                    aria-label="Edit section content"
+                                    data-tooltip="Edit this section's content inline"
+                                    aria-label="Edit this section's content inline"
                                   >
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
                                   </button>
@@ -813,8 +858,8 @@ function App() {
                                       setFeedbackComment('')
                                     }
                                   }}
-                                  title={feedback ? 'Change feedback' : 'Give feedback'}
-                                  aria-label={feedback ? 'Change feedback' : 'Give feedback'}
+                                  data-tooltip={feedback ? 'View or change your feedback for this section' : 'Give feedback on this section (e.g. accuracy, tone)'}
+                                  aria-label={feedback ? 'View or change your feedback for this section' : 'Give feedback on this section'}
                                 >
                                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
                                 </button>

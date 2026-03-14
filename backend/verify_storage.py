@@ -31,7 +31,7 @@ def main():
     try:
         templates = list_templates()
         assert isinstance(templates, list), "list_templates should return a list"
-        assert len(templates) >= 1, "expected at least one template (e.g. contract)"
+        assert len(templates) >= 1, "expected at least one template"
         print("OK list_templates")
     except Exception as e:
         errors.append(f"list_templates: {e}")
@@ -40,10 +40,10 @@ def main():
 
     # get_template
     try:
-        t = get_template("contract")
-        assert t is not None, "get_template('contract') should return a template"
-        assert t.id == "contract"
-        assert len(t.sections) >= 2, "contract template should have at least 2 sections"
+        t = get_template("implementation_guidance")
+        assert t is not None, "get_template('implementation_guidance') should return a template"
+        assert t.id == "implementation_guidance"
+        assert len(t.sections) >= 2, "implementation_guidance template should have at least 2 sections"
         print("OK get_template")
     except Exception as e:
         errors.append(f"get_template: {e}")
@@ -52,9 +52,9 @@ def main():
 
     # create_run
     try:
-        run = create_run(TEST_RUN_ID, "contract", {"client": "Acme"}, ["intro", "terms"])
+        run = create_run(TEST_RUN_ID, "implementation_guidance", {"topic": "Test"}, ["project_instructions", "guidance_title"])
         assert run.run_id == TEST_RUN_ID
-        assert run.template_id == "contract"
+        assert run.template_id == "implementation_guidance"
         print("OK create_run")
     except Exception as e:
         errors.append(f"create_run: {e}")
@@ -75,11 +75,11 @@ def main():
 
     # write_section and read_section
     try:
-        write_section(TEST_RUN_ID, "intro", "# Intro content\n\nParagraph.")
-        out = read_section(TEST_RUN_ID, "intro")
+        write_section(TEST_RUN_ID, "project_instructions", "# Project instructions\n\nParagraph.")
+        out = read_section(TEST_RUN_ID, "project_instructions")
         assert out is not None
-        assert out.section_id == "intro"
-        assert "Intro content" in out.content
+        assert out.section_id == "project_instructions"
+        assert "Project instructions" in out.content
         print("OK write_section / read_section")
     except Exception as e:
         errors.append(f"write_section/read_section: {e}")

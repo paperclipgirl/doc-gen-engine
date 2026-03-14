@@ -21,7 +21,6 @@ Prototype scope is complete. No new product features; documentation and cleanup 
 
 ## Post–Section H enhancements (done)
 
-- **Contract prompt files** — Restored `backend/prompts/contract/intro.txt` and `terms.txt` so the Contract template works.
 - **Implementation Guidance template** — Added `implementation_guidance.json`; template loader logs when a template is skipped; sections include `depends_on` so `GET /api/templates` returns both templates.
 - **Implementation Guidance UI** — When Implementation Guidance is selected, form shows topic (required), jurisdiction (required), context (optional); `structured_input` is `{ topic, jurisdiction, context }`.
 - **Previous sections in runner** — Runner and rerun pass `previous_sections` (concatenated prior section content) into each prompt so prompts can use `{{previous_sections}}`.
