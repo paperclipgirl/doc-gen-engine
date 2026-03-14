@@ -1,0 +1,40 @@
+OBJECTIVE
+Define the recommended default architectural posture.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Based on the analysis so far:
+
+Identify the architectural pattern most suitable for the majority of firms.
+
+Explain:
+
+- why it satisfies the 80% principle
+- when deviation is appropriate
+- signals indicating deviation may be needed
+- how to avoid over-engineering
+
+Do not mandate adoption.
+
+OUTPUT FORMAT
+
+Markdown section titled:
+
+Recommended Default Pattern
+
+End with:
+
+Validation Checklist
+
+- Default grounded in reuse
+- Deviation conditions clear
+- No prescriptive enforcement

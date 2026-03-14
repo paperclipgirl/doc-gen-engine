@@ -1,0 +1,41 @@
+OBJECTIVE
+Identify whether a third viable architectural approach exists.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Determine whether a third materially distinct architectural approach exists.
+
+If one exists:
+
+Describe it using the same structure as Options 1 and 2.
+
+If not:
+
+Return exactly:
+
+"No additional materially distinct approach identified."
+
+Avoid introducing unnecessary variation.
+
+OUTPUT FORMAT
+
+Markdown section.
+
+Section Heading:
+Option 3 – Approach (if applicable)
+
+End with:
+
+Validation Checklist
+
+- Option materially distinct if included
+- No unnecessary option proliferation

@@ -1,0 +1,51 @@
+OBJECTIVE
+Compare the architectural approaches defined in the previous sections.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Produce a structured comparison of the approaches.
+
+Include a table:
+
+| Dimension | Option 1 | Option 2 | Option 3 (if applicable) |
+
+Dimensions may include:
+
+Governance strength  
+Operational simplicity  
+Reporting clarity  
+Scalability  
+Jurisdiction neutrality  
+Implementation effort  
+Risk exposure  
+
+After the table, include a short narrative explaining:
+
+- key trade-off patterns
+- where firms commonly underestimate complexity
+- when one approach becomes problematic
+
+Do not recommend a solution yet.
+
+OUTPUT FORMAT
+
+Markdown section titled:
+
+Comparative Analysis
+
+End with:
+
+Validation Checklist
+
+- Comparison neutral
+- No implicit recommendation
+- Trade-offs clearly explained

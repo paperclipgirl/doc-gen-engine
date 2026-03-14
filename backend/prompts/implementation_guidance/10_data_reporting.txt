@@ -1,0 +1,44 @@
+OBJECTIVE
+Explain the data and reporting implications of the architectural approaches.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Explain how the architectural approaches affect data visibility and reporting integrity.
+
+Discuss:
+
+- structured data implications
+- reporting and BI considerations
+- dashboard visibility impacts
+- data duplication risks
+- how reporting quality may degrade under certain approaches
+
+Avoid:
+
+- defining dashboards
+- defining report builds
+- inventing unsupported metrics
+
+OUTPUT FORMAT
+
+Return markdown suitable for a document section.
+
+Section Heading:
+Data and Reporting Implications
+
+End with:
+
+Validation Checklist
+
+- Reporting implications clearly tied to lifecycle elements
+- No unsupported metrics introduced
+- Data posture proportionate to architectural scope

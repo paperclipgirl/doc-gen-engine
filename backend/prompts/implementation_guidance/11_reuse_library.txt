@@ -1,0 +1,45 @@
+OBJECTIVE
+Explain how this guidance interacts with the wider accelerator and solution library.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Explain how this Implementation Guidance fits within the broader accelerator ecosystem.
+
+Discuss:
+
+- interaction with Micro Solutions
+- interaction with Functional Solutions
+- risk of duplication with other guidance
+- naming collision risks
+- jurisdiction neutrality considerations
+- how this guidance preserves modular accelerator strategy
+
+Avoid:
+
+- redesigning accelerators
+- assuming dependent accelerators exist
+- expanding scope beyond advisory posture
+
+OUTPUT FORMAT
+
+Return markdown suitable for a document section.
+
+Section Heading:
+Reuse and Library Considerations
+
+End with:
+
+Validation Checklist
+
+- Library compatibility clearly described
+- No hidden scope expansion
+- Reuse posture preserved

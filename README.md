@@ -38,7 +38,7 @@ npm run dev
 
 All persistence is file-based under `backend/`:
 
-- **backend/prompts/** — One text file per section (e.g. `contract/intro.txt`). Supports `{{placeholder}}` substitution from structured input.
+- **backend/prompts/** — One text file per section (e.g. `contract/intro.txt`). Supports `{{key}}` substitution: values come from structured input plus `{{previous_sections}}` (prior section content, populated by the runner). For Implementation Guidance, use `{{topic}}`, `{{jurisdiction}}`, `{{context}}`, and `{{previous_sections}}`.
 - **backend/templates/** — One JSON file per document type (e.g. `contract.json`): `id`, `name`, `description`, `sections` (ordered list with `id`, `prompt_path`, `display_name`).
 - **backend/runs/** — One directory per run, named by `run_id`:
   - `input.json` — Template id and structured input for the run.

@@ -1,0 +1,53 @@
+OBJECTIVE
+Define the first viable architectural approach to addressing the problem.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Describe a distinct architectural approach to addressing the problem described earlier.
+
+Structure the output as:
+
+Approach Summary
+
+When This Approach Is Appropriate
+
+Advantages
+
+Limitations
+
+Governance Implications
+
+Reporting Impact
+
+Scalability Impact
+
+Avoid:
+
+- configuration mechanics
+- field definitions
+- workflow routing
+- technical build instructions
+
+OUTPUT FORMAT
+
+Return markdown suitable for a document section.
+
+Section Heading:
+Option 1 – Approach
+
+End with:
+
+Validation Checklist
+
+- Approach clearly differentiated
+- Pros and cons balanced
+- No configuration detail introduced

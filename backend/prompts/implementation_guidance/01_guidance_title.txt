@@ -1,0 +1,33 @@
+OBJECTIVE
+Generate a reusable Implementation Guidance title.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+INSTRUCTIONS
+
+Generate a concise title that describes the architectural concern addressed by this guidance.
+
+The title must:
+
+- clearly describe the decision space
+- avoid marketing language
+- avoid client-specific language
+- avoid numbering
+- remain reusable across practice areas and jurisdictions
+
+The title should be suitable for inclusion in an accelerator library catalogue.
+
+OUTPUT FORMAT
+
+Return only the title text.
+
+VALIDATION
+
+Ensure:
+
+- the title clearly implies the architectural decision space
+- the title remains reusable and neutral

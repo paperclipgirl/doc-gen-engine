@@ -1,0 +1,39 @@
+OBJECTIVE
+Confirm the scope of the Implementation Guidance before generating any advisory content.
+
+INPUT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+The user has provided the guidance topic, jurisdiction, and optional context above. Use them to confirm:
+- the architectural decision space
+- the lifecycle positioning of the concern (Instruction, Matter, child Work Type, governance overlay, integration layer, etc.)
+- whether the guidance is expected to apply across multiple jurisdictions or contexts
+
+INSTRUCTIONS
+
+1. Confirm the architectural decision space.
+2. Confirm the lifecycle positioning of the concern.
+3. Confirm whether the guidance is expected to apply across multiple jurisdictions or contexts.
+4. Identify any missing information required before advisory guidance can begin.
+
+OUTPUT FORMAT
+
+Do not generate Implementation Guidance content.
+
+Instead return a short confirmation structure:
+
+Guidance Topic
+Decision Area
+Lifecycle Layer
+Cross-Jurisdiction Scope
+Clarifications Required
+
+VALIDATION
+
+Ensure:
+- the decision area is clearly defined
+- lifecycle positioning is explicit
+- no advisory content is generated yet

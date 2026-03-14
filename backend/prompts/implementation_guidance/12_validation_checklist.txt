@@ -1,0 +1,32 @@
+OBJECTIVE
+Produce a final validation checklist confirming the Implementation Guidance maintains the correct architectural posture.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Generate a consolidated validation checklist confirming the guidance satisfies the architectural discipline requirements.
+
+Checklist items must confirm:
+
+- advisory posture maintained
+- no configuration mechanics introduced
+- no structural modelling drift
+- governance considerations preserved
+- reuse bias maintained
+- 80 percent principle respected
+- no hidden scope expansion
+
+OUTPUT FORMAT
+
+Return only a checklist.
+
+Section Heading:
+Validation Checklist

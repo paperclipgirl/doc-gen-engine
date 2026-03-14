@@ -1,0 +1,55 @@
+OBJECTIVE
+Define the second viable architectural approach to addressing the problem.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Define an alternative architectural approach.
+
+This approach must be materially different from Option 1.
+
+Use the same structure as Option 1:
+
+Approach Summary
+
+When This Approach Is Appropriate
+
+Advantages
+
+Limitations
+
+Governance Implications
+
+Reporting Impact
+
+Scalability Impact
+
+Avoid:
+
+- configuration mechanics
+- workflow logic
+- field definitions
+- implementation instructions
+
+OUTPUT FORMAT
+
+Return markdown suitable for a document section.
+
+Section Heading:
+Option 2 – Approach
+
+End with:
+
+Validation Checklist
+
+- Approach structurally distinct
+- Trade-offs explicit
+- No modelling drift

@@ -18,3 +18,14 @@ One template, multiple ordered sections; persisted section outputs; final assemb
 ## Scope lock
 
 Prototype scope is complete. No new product features; documentation and cleanup only for Section H. Ideas for later (e.g. graph nodes per section, evaluation workflows) remain out of scope and are not implemented.
+
+## Post–Section H enhancements (done)
+
+- **Contract prompt files** — Restored `backend/prompts/contract/intro.txt` and `terms.txt` so the Contract template works.
+- **Implementation Guidance template** — Added `implementation_guidance.json`; template loader logs when a template is skipped; sections include `depends_on` so `GET /api/templates` returns both templates.
+- **Implementation Guidance UI** — When Implementation Guidance is selected, form shows topic (required), jurisdiction (required), context (optional); `structured_input` is `{ topic, jurisdiction, context }`.
+- **Previous sections in runner** — Runner and rerun pass `previous_sections` (concatenated prior section content) into each prompt so prompts can use `{{previous_sections}}`.
+
+## Next: Real Implementation Guidance prompts — Complete
+
+All 13 prompts in `backend/prompts/implementation_guidance/*.txt` now use `{{topic}}`, `{{jurisdiction}}`, and `{{context}}` for user input; sections 02–12 also use `{{previous_sections}}`. Placeholder `{{structured_input}}` was removed; the runner and UI supply the correct structured input.

@@ -1,0 +1,45 @@
+OBJECTIVE
+Generate the "Problem and Context" section of the Implementation Guidance.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Describe the recurring operational or architectural problem this guidance addresses.
+
+Explain:
+
+- the operational scenario where the issue appears
+- the lifecycle stage where the decision occurs
+- which personas are impacted
+- why inconsistent handling creates risk
+- why the decision matters architecturally
+
+Do NOT:
+
+- propose solutions yet
+- introduce configuration mechanics
+- define structural models
+- introduce workflow detail
+
+OUTPUT FORMAT
+
+Return markdown suitable for a document section.
+
+Section Heading:
+Problem and Context
+
+End with:
+
+Validation Checklist
+
+- Problem clearly articulated
+- Lifecycle positioning explicit
+- No modelling detail introduced

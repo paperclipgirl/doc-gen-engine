@@ -1,0 +1,46 @@
+OBJECTIVE
+Explain the governance and risk considerations associated with the recommended architectural approaches.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Explain the governance implications of the architectural approaches described earlier.
+
+Discuss:
+
+- segregation of duties implications
+- audit trail expectations
+- escalation posture
+- approval boundaries
+- regulatory or operational risk exposure
+
+Focus on governance considerations rather than configuration or workflow design.
+
+Avoid:
+
+- defining approval workflows
+- encoding procedural law
+- introducing workflow logic
+
+OUTPUT FORMAT
+
+Return markdown suitable for a document section.
+
+Section Heading:
+Governance and Risk Considerations
+
+End with:
+
+Validation Checklist
+
+- Governance impact clearly described
+- Human authority preserved
+- No workflow logic introduced

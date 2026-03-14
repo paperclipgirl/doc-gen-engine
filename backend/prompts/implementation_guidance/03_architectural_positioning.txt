@@ -1,0 +1,45 @@
+OBJECTIVE
+Explain where this concern sits within the Clio Operate platform architecture.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Explain how the concern interacts with the platform architecture.
+
+Describe:
+
+- relevant lifecycle layers
+- control-plane implications if relevant
+- interaction with Work Types (high level only)
+- governance boundaries
+- reporting visibility implications
+
+Do NOT:
+
+- introduce new entities
+- define hierarchy models
+- define workflow logic
+- define configuration mechanics
+
+OUTPUT FORMAT
+
+Return markdown suitable for a document section.
+
+Section Heading:
+Architectural Context
+
+End with:
+
+Validation Checklist
+
+- Architectural layer clearly described
+- Governance boundaries respected
+- No structural modelling introduced
