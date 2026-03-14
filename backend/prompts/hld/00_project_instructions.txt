@@ -1,1 +1,35 @@
-# Placeholder – prompt content to be added
+OBJECTIVE
+Confirm the minimum information required before generating any High-Level Design content.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+Component: {{component}}
+
+INSTRUCTIONS
+
+Before generating any HLD content, confirm:
+
+• the project or accelerator topic
+• the jurisdictional or regulatory context
+• the intended business area or operational problem
+• the expected scope boundary
+• whether the Matter / Work Type hierarchy is already known
+• whether there are known assumptions, dependencies, or open questions
+
+If key information is unclear or incomplete, request clarification before proceeding.
+
+Do NOT generate HLD content at this step.
+
+OUTPUT FORMAT
+
+Confirmation summary or clarification questions only.
+
+Validation Checklist
+
+• Scope intent is clear
+• Jurisdictional context is visible
+• Structural uncertainty is acknowledged
+• No HLD content generated prematurely

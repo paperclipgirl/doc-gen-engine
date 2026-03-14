@@ -1,6 +1,6 @@
-# Document Generation Engine (Prototype)
+# Clio Operate Accelerator Factory
 
-Local, file-based document generation: structured input + template → sequential prompt execution → section outputs → assembled document.
+Generate accelerator documents from templates: choose a template, component (North America menu), and area of law; then run sequential prompt execution to produce section outputs and an assembled document. File-based storage, optional section feedback, and a review-mode UI.
 
 ## Setup
 
@@ -33,6 +33,19 @@ npm run dev
 - **Backend** (optional): copy `backend/.env.example` to `backend/.env`.
   - **OPENAI_API_KEY** — If set, the API uses the real pipeline. If unset, the API runs in **mock mode** (placeholder section output) so you can verify endpoints without a key.
   - **USE_MOCK_LLM** — Set to `1` to force mock mode even when `OPENAI_API_KEY` is set (e.g. local testing).
+  - **CORS_ORIGINS** — Comma-separated list of allowed frontend origins (default: localhost:5173). Set in production to your frontend URL(s).
+
+## Deployment
+
+- **Backend:** Run with a process manager or container. Example: `uvicorn src.main:app --host 0.0.0.0 --port 8000` (no `--reload` in production). Set `OPENAI_API_KEY` and `CORS_ORIGINS` via environment (or `.env`); do not commit secrets.
+- **Frontend:** Build with `npm run build`; serve the `dist/` folder with a static server or reverse proxy. Point the app at your backend API (same origin or configure proxy / API base URL).
+- **Data:** All state is under `backend/runs/` and `backend/prompts/`, `backend/templates/`. Back up these directories if you need to preserve runs and feedback.
+
+## Security
+
+- **Secrets:** Keep `OPENAI_API_KEY` and any other secrets in environment or a secure secret store; do not commit them.
+- **CORS:** Set `CORS_ORIGINS` in production to the exact origin(s) of your frontend to avoid cross-origin abuse.
+- **Rate limiting:** Not included; add at the reverse proxy or gateway if the API is exposed to untrusted users.
 
 ## Where data is stored
 

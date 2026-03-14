@@ -6,11 +6,13 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   createRun,
   getRun,
+  getRunFeedback,
   getRunVersions,
   getSectionPrompt,
   listRuns,
   listTemplates,
   rerunSection,
+  submitSectionFeedbackToApi,
   type RunDetail,
   type RunSummary,
   type TemplateSummary,
@@ -341,6 +343,24 @@ function App() {
     })
   }, [runId, run])
 
+  // Load persisted section feedback when run is loaded
+  useEffect(() => {
+    if (!runId || !run) return
+    getRunFeedback(runId)
+      .then((feedback) => {
+        const next: Record<string, { category: string; comment?: string; submittedAt: string }> = {}
+        Object.entries(feedback).forEach(([sectionId, entry]) => {
+          next[`${runId}|${sectionId}`] = {
+            category: entry.category,
+            comment: entry.comment,
+            submittedAt: entry.submitted_at,
+          }
+        })
+        setSectionFeedback((prev) => ({ ...prev, ...next }))
+      })
+      .catch(() => {})
+  }, [runId, run])
+
   // Auto-collapse form only after successful generation (not while loading)
   useEffect(() => {
     if (run?.status === 'completed') setFormExpanded(false)
@@ -374,7 +394,7 @@ function App() {
     setRun(null)
     setSubmitting(true)
     const useTopicJurisdictionContext =
-      templateId === 'implementation_guidance' || templateId === 'workflow_pattern'
+      templateId === 'implementation_guidance' || templateId === 'workflow_pattern' || templateId === 'hld'
     const jurisdictionValue =
       subArea ? `${areaOfLaw} – ${subArea}` : areaOfLaw
     const structured_input: Record<string, string> = useTopicJurisdictionContext
@@ -477,18 +497,26 @@ function App() {
 
   const submitSectionFeedback = (sectionId: string) => {
     if (!runId || !feedbackCategory.trim()) return
+    const category = feedbackCategory.trim()
+    const comment = feedbackComment.trim() || ''
     const key = `${runId}|${sectionId}`
-    setSectionFeedback((prev) => ({
-      ...prev,
-      [key]: {
-        category: feedbackCategory.trim(),
-        comment: feedbackComment.trim() || undefined,
-        submittedAt: new Date().toISOString(),
-      },
-    }))
-    setFeedbackCategory('')
-    setFeedbackComment('')
-    setExpandedFeedbackSectionId(null)
+    submitSectionFeedbackToApi(runId, sectionId, category, comment)
+      .then(() => {
+        setSectionFeedback((prev) => ({
+          ...prev,
+          [key]: {
+            category,
+            comment: comment || undefined,
+            submittedAt: new Date().toISOString(),
+          },
+        }))
+        setFeedbackCategory('')
+        setFeedbackComment('')
+        setExpandedFeedbackSectionId(null)
+      })
+      .catch((e) => {
+        setToast({ message: e instanceof Error ? e.message : 'Failed to save feedback', type: 'error' })
+      })
   }
 
   const sectionContentKey = (sectionId: string) => (runId ? `${runId}|${sectionId}` : '')
@@ -894,7 +922,7 @@ function App() {
                 </div>
               </div>
             )}
-            {(templateId === 'implementation_guidance' || templateId === 'workflow_pattern') ? (
+            {(templateId === 'implementation_guidance' || templateId === 'workflow_pattern' || templateId === 'hld') ? (
               <>
                 <div className="form-group">
                   <label htmlFor="topic" className="form-label">
@@ -947,7 +975,7 @@ function App() {
                   submitting ||
                   !templateId ||
                   !areaOfLaw.trim() ||
-                  ((templateId === 'implementation_guidance' || templateId === 'workflow_pattern') && !topic.trim())
+                  ((templateId === 'implementation_guidance' || templateId === 'workflow_pattern' || templateId === 'hld') && !topic.trim())
                 }
               >
                 {submitting && <span className="spinner" />}

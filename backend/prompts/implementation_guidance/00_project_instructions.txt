@@ -6,6 +6,7 @@ INPUT
 Topic: {{topic}}
 Jurisdiction: {{jurisdiction}}
 Context: {{context}}
+Component: {{component}}
 
 The user has provided the guidance topic, jurisdiction, and optional context above. Use them to confirm:
 - the architectural decision space

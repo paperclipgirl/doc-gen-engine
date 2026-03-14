@@ -211,3 +211,39 @@ def get_run_dir(run_id: str) -> Optional[Path]:
 def get_prompt_path(prompt_path: str) -> Path:
     """Resolve prompt file path (relative to prompts/) for loading content later."""
     return _PROMPTS_DIR / prompt_path
+
+
+def _feedback_path(run_id: str) -> Path:
+    """Path to runs/{run_id}/feedback.json."""
+    return _RUNS_DIR / run_id / "feedback.json"
+
+
+def get_section_feedback(run_id: str) -> dict[str, dict]:
+    """
+    Load all section feedback for a run. Returns { section_id: { category, comment?, submitted_at } }.
+    Missing file or invalid JSON returns {}.
+    """
+    path = _feedback_path(run_id)
+    if not path.exists():
+        return {}
+    import json
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return data.get("sections", {}) if isinstance(data, dict) else {}
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+def set_section_feedback(run_id: str, section_id: str, category: str, comment: str = "") -> None:
+    """Persist feedback for one section. Merges with existing feedback for other sections."""
+    path = _feedback_path(run_id)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    import json
+    from datetime import datetime
+    existing = get_section_feedback(run_id)
+    existing[section_id] = {
+        "category": category,
+        "comment": comment,
+        "submitted_at": datetime.utcnow().isoformat() + "Z",
+    }
+    path.write_text(json.dumps({"sections": existing}, indent=2), encoding="utf-8")

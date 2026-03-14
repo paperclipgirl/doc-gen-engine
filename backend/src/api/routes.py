@@ -203,6 +203,32 @@ def api_get_section_prompt(run_id: str, section_id: str):
     return {"prompt_text": prompt_text}
 
 
+@router.get("/runs/{run_id}/feedback")
+def api_get_run_feedback(run_id: str):
+    """Return all section feedback for the run. 404 if run not found."""
+    run = storage.get_run(run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail="Run not found")
+    feedback = storage.get_section_feedback(run_id)
+    return {"run_id": run_id, "feedback": feedback}
+
+
+@router.post("/runs/{run_id}/sections/{section_id}/feedback", status_code=200)
+def api_submit_section_feedback(run_id: str, section_id: str, body: dict):
+    """Persist section feedback. Body: { category, comment? }. 404 if run or section not in run."""
+    run = storage.get_run(run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail="Run not found")
+    if section_id not in run.section_ids:
+        raise HTTPException(status_code=400, detail="Section not in run")
+    category = (body.get("category") or "").strip()
+    if not category:
+        raise HTTPException(status_code=400, detail="category is required")
+    comment = (body.get("comment") or "").strip()
+    storage.set_section_feedback(run_id, section_id, category, comment)
+    return {"run_id": run_id, "section_id": section_id, "ok": True}
+
+
 @router.get("/runs/{run_id}/versions")
 def api_get_run_versions(run_id: str):
     """

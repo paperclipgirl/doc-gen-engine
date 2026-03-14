@@ -106,6 +106,34 @@ export async function getSectionPrompt(runId: string, sectionId: string): Promis
   return res.json()
 }
 
+/** Section feedback: GET all for run, POST one section. */
+export interface SectionFeedbackEntry {
+  category: string
+  comment?: string
+  submitted_at: string
+}
+
+export async function getRunFeedback(runId: string): Promise<Record<string, SectionFeedbackEntry>> {
+  const res = await fetch(`${API}/runs/${runId}/feedback`)
+  if (!res.ok) throw new Error(await res.text())
+  const data = await res.json()
+  return data.feedback ?? {}
+}
+
+export async function submitSectionFeedbackToApi(
+  runId: string,
+  sectionId: string,
+  category: string,
+  comment: string
+): Promise<void> {
+  const res = await fetch(`${API}/runs/${runId}/sections/${sectionId}/feedback`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ category, comment }),
+  })
+  if (!res.ok) throw new Error(await res.text())
+}
+
 /** Section G: version history for a run (GET .../versions). Prototype: one entry per run. */
 export interface VersionSnapshot {
   run_id: string

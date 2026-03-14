@@ -1,4 +1,4 @@
-# Document Generation Engine — Plan
+# Clio Operate Accelerator Factory — Plan
 
 ## Implementation sections (complete)
 
@@ -28,3 +28,18 @@ Prototype scope is complete. No new product features; documentation and cleanup 
 ## Next: Real Implementation Guidance prompts — Complete
 
 All 13 prompts in `backend/prompts/implementation_guidance/*.txt` now use `{{topic}}`, `{{jurisdiction}}`, and `{{context}}` for user input; sections 02–12 also use `{{previous_sections}}`. Placeholder `{{structured_input}}` was removed; the runner and UI supply the correct structured input.
+
+## Current state (beyond prototype)
+
+- **Templates:** Implementation Guidance, Workflow Pattern, Micro Solution, HLD; template list from backend.
+- **Form:** Template select, Component picker (North America menu: Procedural / Governance / Foundation), Area of Law picker (searchable, grouped), topic/jurisdiction/context for guidance templates.
+- **Run flow:** Create run → poll status → section outputs and assembled document; run history sidebar; open run from list.
+- **Review mode:** After generation, form collapses to a compact run-context panel; document preview is primary; “Edit inputs” and “New run” available.
+- **Section UX:** View prompt, edit section content, reset to generated; per-section feedback (category + comment) for prompt improvement signals; versioning (original / current / suggested) with Accept / Keep current.
+- **Branding:** Clio Operate Accelerator Factory (app title, API title, docs).
+
+## Roadmap / next steps
+
+- **Graph nodes per section** — Model section dependencies as a graph; run sections in parallel where possible. Template/section model and runner changes.
+- **Evaluation workflows** — Regression or quality checks on prompt outputs (fixed inputs, diff or score). For iterating on prompts or models.
+- **Section feedback persistence** — Done: GET/POST API, `runs/{run_id}/feedback.json`, frontend loads and submits via API.

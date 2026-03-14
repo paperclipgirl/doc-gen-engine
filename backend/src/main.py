@@ -2,16 +2,22 @@
 FastAPI app: CORS enabled, API routes mounted.
 Run from backend directory: uvicorn src.main:app --reload
 """
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.routes import router as api_router
 
-app = FastAPI(title="Document Generation Engine", version="0.1.0")
+app = FastAPI(title="Clio Operate Accelerator Factory", version="0.1.0")
+
+# CORS: default to local dev; set CORS_ORIGINS (comma-separated) in production.
+_origins = os.environ.get("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").strip().split(",")
+_origins = [o.strip() for o in _origins if o.strip()]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -22,4 +28,4 @@ app.include_router(api_router)
 
 @app.get("/")
 def root():
-    return {"service": "Document Generation Engine", "docs": "/docs"}
+    return {"service": "Clio Operate Accelerator Factory", "docs": "/docs"}
