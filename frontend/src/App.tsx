@@ -2,7 +2,7 @@
  * Section F+G: Generation form, template select, run status, section outputs, assembled doc;
  * Section G: rerun section, run history, open run, version history.
  */
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   createRun,
   getRun,
@@ -642,32 +642,47 @@ function App() {
     return () => clearTimeout(timer)
   }, [runId, run?.section_ids, currentContent, resizePreviewSectionTextareas])
 
+  // Single-selection: deduplicate by run_id so only one row can ever match runId (avoids multiple highlighted rows)
+  const runsDisplay = useMemo(() => {
+    const seen = new Set<string>()
+    return runs.filter((r) => {
+      const id = String(r.run_id)
+      if (seen.has(id)) return false
+      seen.add(id)
+      return true
+    })
+  }, [runs])
+
   return (
     <div className="app-root">
       {/* Left: run history only */}
       <aside className="app-sidebar-left">
         <h2 className="run-history-title">Run history</h2>
-        {runs.length === 0 ? (
+        {runsDisplay.length === 0 ? (
           <p className="run-history-empty">No runs yet. Generate a document to get started.</p>
         ) : (
           <ul className="run-history-list">
-            {runs.map((r) => (
-              <li key={r.run_id} className="run-history-item">
-                <button
-                  type="button"
-                  className={`run-item ${runId === r.run_id ? 'is-selected' : ''}`}
-                  onClick={() => handleOpenRun(r.run_id)}
-                >
-                  <span className="run-item-title">{templateName(r.template_id)}</span>
-                  <span className="run-item-meta">
-                    <span className="run-item-date">{formatDate(r.updated_at)}</span>
-                    {runId === r.run_id && run && (
-                      <span className={`run-item-status run-item-status--${run.status}`}>{run.status}</span>
-                    )}
-                  </span>
-                </button>
-              </li>
-            ))}
+            {runsDisplay.map((r) => {
+              const isActive = runId != null && String(runId) === String(r.run_id)
+              return (
+                <li key={r.run_id} className="run-history-item">
+                  <button
+                    type="button"
+                    className={`run-item ${isActive ? 'is-selected' : ''}`}
+                    onClick={() => handleOpenRun(r.run_id)}
+                    aria-current={isActive ? 'true' : undefined}
+                  >
+                    <span className="run-item-title">{templateName(r.template_id)}</span>
+                    <span className="run-item-meta">
+                      <span className="run-item-date">{formatDate(r.updated_at)}</span>
+                      {isActive && run && (
+                        <span className={`run-item-status run-item-status--${run.status}`}>{run.status}</span>
+                      )}
+                    </span>
+                  </button>
+                </li>
+              )
+            })}
           </ul>
         )}
       </aside>
