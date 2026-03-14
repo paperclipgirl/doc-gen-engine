@@ -728,43 +728,6 @@ function App() {
                               {rerunningSectionId === s.section_id ? 'Rerunning…' : 'Rerun'}
                             </button>
                           </div>
-                          <div className="section-item-actions">
-                            <button
-                              type="button"
-                              className="section-prompt-toggle"
-                              onClick={() => togglePrompt(s.section_id)}
-                              title={showPrompt ? 'Hide prompt' : 'View prompt'}
-                            >
-                              <span className="section-action-icon" aria-hidden>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>
-                              </span>
-                              {showPrompt ? 'Hide prompt' : 'View prompt'}
-                            </button>
-                            {!isEditing && (
-                              <>
-                                <button
-                                  type="button"
-                                  className="section-version-action section-version-action-edit"
-                                  onClick={() => handleStartEdit(s.section_id)}
-                                  title="Edit section content"
-                                >
-                                  <span className="section-action-icon" aria-hidden>
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
-                                  </span>
-                                  Edit
-                                </button>
-                                {isEdited(s.section_id) && (
-                                  <button
-                                    type="button"
-                                    className="section-version-action"
-                                    onClick={() => handleResetToGenerated(s.section_id)}
-                                  >
-                                    Reset to generated
-                                  </button>
-                                )}
-                              </>
-                            )}
-                          </div>
                           {showPrompt && (
                             <div className="section-prompt-wrap">
                               {promptLoadingSectionId === s.section_id && (
@@ -778,30 +741,86 @@ function App() {
                               )}
                             </div>
                           )}
-                          {isEditing ? (
-                            <div className="section-version-edit">
-                              <textarea
-                                className="textarea section-version-textarea"
-                                value={editingContent}
-                                onChange={(e) => setEditingContent(e.target.value)}
-                                rows={6}
-                              />
-                              <div className="section-version-edit-actions">
+                          <div className="section-output-wrap">
+                            {isEditing ? (
+                              <div className="section-version-edit">
+                                <textarea
+                                  className="textarea section-version-textarea"
+                                  value={editingContent}
+                                  onChange={(e) => setEditingContent(e.target.value)}
+                                  rows={6}
+                                />
+                                <div className="section-version-edit-actions">
+                                  <button
+                                    type="button"
+                                    className="btn-primary btn-sm"
+                                    onClick={() => handleSaveEdit(s.section_id)}
+                                  >
+                                    Save
+                                  </button>
+                                  <button type="button" className="btn-secondary btn-sm" onClick={handleCancelEdit}>
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <pre className="section-item-content">{content}</pre>
+                            )}
+                            <div className="section-output-actions">
+                              {!isEditing && isEdited(s.section_id) && (
+                                <div className="section-reset-wrap">
+                                  <button
+                                    type="button"
+                                    className="section-version-action"
+                                    onClick={() => handleResetToGenerated(s.section_id)}
+                                  >
+                                    Reset to generated
+                                  </button>
+                                </div>
+                              )}
+                              <div className="section-icon-bar">
                                 <button
                                   type="button"
-                                  className="btn-primary btn-sm"
-                                  onClick={() => handleSaveEdit(s.section_id)}
+                                  className={`section-icon-btn ${showPrompt ? 'is-active' : ''}`}
+                                  onClick={() => togglePrompt(s.section_id)}
+                                  title={showPrompt ? 'Hide prompt' : 'View prompt'}
+                                  aria-label={showPrompt ? 'Hide prompt' : 'View prompt'}
                                 >
-                                  Save
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>
                                 </button>
-                                <button type="button" className="btn-secondary btn-sm" onClick={handleCancelEdit}>
-                                  Cancel
+                                {!isEditing && (
+                                  <button
+                                    type="button"
+                                    className="section-icon-btn"
+                                    onClick={() => handleStartEdit(s.section_id)}
+                                    title="Edit section content"
+                                    aria-label="Edit section content"
+                                  >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                                  </button>
+                                )}
+                                <button
+                                  type="button"
+                                  className={`section-icon-btn ${showFeedbackForm || feedback ? 'is-active' : ''}`}
+                                  onClick={() => {
+                                    if (feedback) {
+                                      setExpandedFeedbackSectionId(s.section_id)
+                                      setFeedbackCategory(feedback.category)
+                                      setFeedbackComment(feedback.comment ?? '')
+                                    } else {
+                                      setExpandedFeedbackSectionId(s.section_id)
+                                      setFeedbackCategory('')
+                                      setFeedbackComment('')
+                                    }
+                                  }}
+                                  title={feedback ? 'Change feedback' : 'Give feedback'}
+                                  aria-label={feedback ? 'Change feedback' : 'Give feedback'}
+                                >
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
                                 </button>
                               </div>
                             </div>
-                          ) : (
-                            <pre className="section-item-content">{content}</pre>
-                          )}
+                          </div>
                           {hasSuggestion && (
                             <div className="section-suggested-update">
                               <div className="section-suggested-title">Suggested update</div>
@@ -886,23 +905,7 @@ function App() {
                                   </button>
                                 </div>
                               </div>
-                            ) : (
-                              <button
-                                type="button"
-                                className="section-feedback-toggle"
-                                onClick={() => {
-                                  setExpandedFeedbackSectionId(s.section_id)
-                                  setFeedbackCategory('')
-                                  setFeedbackComment('')
-                                }}
-                                title="Give feedback on this section"
-                              >
-                                <span className="section-feedback-icon" aria-hidden>
-                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
-                                </span>
-                                Feedback
-                              </button>
-                            )}
+                            ) : null}
                           </div>
                         </li>
                       )
