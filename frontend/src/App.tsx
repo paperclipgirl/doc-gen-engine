@@ -147,6 +147,13 @@ function App() {
   const [rerunningSectionId, setRerunningSectionId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
+
+  useEffect(() => {
+    if (!toast) return
+    const t = setTimeout(() => setToast(null), 5000)
+    return () => clearTimeout(t)
+  }, [toast])
 
   // Load templates on mount
   useEffect(() => {
@@ -214,7 +221,7 @@ function App() {
       templateId === 'implementation_guidance' || templateId === 'workflow_pattern'
     const jurisdictionValue =
       subArea ? `${areaOfLaw} – ${subArea}` : areaOfLaw
-    const structured_input = useTopicJurisdictionContext
+    const structured_input: Record<string, string> = useTopicJurisdictionContext
       ? { topic, jurisdiction: jurisdictionValue, context: context || '' }
       : { client_name: clientName, effective_date: effectiveDate, jurisdiction: jurisdictionValue }
     createRun({
@@ -224,9 +231,12 @@ function App() {
       .then(({ run_id }) => {
         setRunId(run_id)
         refreshRunHistory()
+        setToast({ message: 'Document generation started.', type: 'success' })
       })
       .catch((e) => {
-        setError(e instanceof Error ? e.message : 'Failed to start run')
+        const msg = e instanceof Error ? e.message : 'Failed to start run'
+        setError(msg)
+        setToast({ message: msg, type: 'error' })
         setSubmitting(false)
       })
       .finally(() => setSubmitting(false))
@@ -268,290 +278,286 @@ function App() {
         poll()
       })
       .catch((e) => {
-        setError(e instanceof Error ? e.message : 'Rerun failed')
+        const msg = e instanceof Error ? e.message : 'Rerun failed'
+        setError(msg)
+        setToast({ message: msg, type: 'error' })
         setRerunningSectionId(null)
       })
   }
 
+  const templateName = (id: string) => templates.find((t) => t.id === id)?.name ?? id
+  const docPreviewState = !runId
+    ? 'none'
+    : !run
+      ? 'generating'
+      : run.status === 'running' || run.status === 'pending'
+        ? 'generating'
+        : run.status === 'failed'
+          ? 'failed'
+          : run.status === 'completed' && run.assembled
+            ? 'completed'
+            : 'completed'
+
   return (
-    <div style={{ padding: '2rem', fontFamily: 'system-ui', maxWidth: '48rem' }}>
-      <h1>Document Generation Engine</h1>
-
-      <form onSubmit={handleSubmit} style={{ marginBottom: '1.5rem' }}>
-        <div style={{ marginBottom: '1rem' }}>
-          <label htmlFor="template" style={{ display: 'block', marginBottom: '0.25rem' }}>
-            Template
-          </label>
-          <select
-            id="template"
-            value={templateId}
-            onChange={(e) => setTemplateId(e.target.value)}
-            disabled={submitting || !!runId}
-            style={{ padding: '0.35rem', minWidth: '12rem' }}
-          >
-            {templates.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        {templateId && (
-          <>
-            <div style={{ marginBottom: '1rem' }}>
-              <label htmlFor="areaOfLaw" style={{ display: 'block', marginBottom: '0.25rem' }}>
-                Area of Law <span style={{ color: '#888' }}>(required)</span>
-              </label>
-              <select
-                id="areaOfLaw"
-                value={areaOfLaw}
-                onChange={(e) => {
-                  setAreaOfLaw(e.target.value)
-                  setSubArea('')
-                }}
-                disabled={submitting || !!runId}
-                style={{ padding: '0.35rem', width: '100%', maxWidth: '20rem' }}
-              >
-                <option value="">— Select area of law —</option>
-                {AREA_OF_LAW.map(({ area }) => (
-                  <option key={area} value={area}>
-                    {area}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {areaOfLaw && (() => {
-              const selected = AREA_OF_LAW.find((r) => r.area === areaOfLaw)
-              const subs = selected?.subs ?? []
-              if (subs.length === 0) return null
-              return (
-                <div style={{ marginBottom: '1rem' }}>
-                  <label htmlFor="subArea" style={{ display: 'block', marginBottom: '0.25rem' }}>
-                    Jurisdiction <span style={{ color: '#888' }}>(optional)</span>
-                  </label>
-                  <select
-                    id="subArea"
-                    value={subArea}
-                    onChange={(e) => setSubArea(e.target.value)}
-                    disabled={submitting || !!runId}
-                    style={{ padding: '0.35rem', width: '100%', maxWidth: '20rem' }}
-                  >
-                    <option value="">— Select sub-area (optional) —</option>
-                    {subs.map((sub) => (
-                      <option key={sub} value={sub}>
-                        {sub}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )
-            })()}
-          </>
-        )}
-        {(templateId === 'implementation_guidance' || templateId === 'workflow_pattern') ? (
-          <>
-            <div style={{ marginBottom: '1rem' }}>
-              <label htmlFor="topic" style={{ display: 'block', marginBottom: '0.25rem' }}>
-                Topic <span style={{ color: '#888' }}>(required)</span>
-              </label>
-              <input
-                id="topic"
-                type="text"
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                disabled={submitting || !!runId}
-                style={{ padding: '0.35rem', width: '100%', maxWidth: '20rem' }}
-              />
-            </div>
-            <div style={{ marginBottom: '1rem' }}>
-              <label htmlFor="context" style={{ display: 'block', marginBottom: '0.25rem' }}>
-                Context <span style={{ color: '#888' }}>(optional)</span>
-              </label>
-              <textarea
-                id="context"
-                value={context}
-                onChange={(e) => setContext(e.target.value)}
-                disabled={submitting || !!runId}
-                placeholder="Additional context for the guidance"
-                rows={3}
-                style={{ padding: '0.35rem', width: '100%', maxWidth: '20rem', resize: 'vertical' }}
-              />
-            </div>
-          </>
-        ) : templateId ? (
-          <>
-            <div style={{ marginBottom: '1rem' }}>
-              <label htmlFor="clientName" style={{ display: 'block', marginBottom: '0.25rem' }}>
-                Client name
-              </label>
-              <input
-                id="clientName"
-                type="text"
-                value={clientName}
-                onChange={(e) => setClientName(e.target.value)}
-                disabled={submitting || !!runId}
-                style={{ padding: '0.35rem', width: '100%', maxWidth: '20rem' }}
-              />
-            </div>
-            <div style={{ marginBottom: '1rem' }}>
-              <label htmlFor="effectiveDate" style={{ display: 'block', marginBottom: '0.25rem' }}>
-                Effective date
-              </label>
-              <input
-                id="effectiveDate"
-                type="text"
-                value={effectiveDate}
-                onChange={(e) => setEffectiveDate(e.target.value)}
-                placeholder="e.g. 2025-01-15"
-                disabled={submitting || !!runId}
-                style={{ padding: '0.35rem', width: '100%', maxWidth: '20rem' }}
-              />
-            </div>
-          </>
-        ) : null}
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button
-            type="submit"
-            disabled={
-              submitting ||
-              !templateId ||
-              !areaOfLaw.trim() ||
-              ((templateId === 'implementation_guidance' || templateId === 'workflow_pattern') &&
-                !topic.trim())
-            }
-          >
-            {submitting ? 'Starting…' : 'Generate'}
-          </button>
-          {runId && (
-            <button type="button" onClick={reset}>
-              New run
-            </button>
-          )}
-        </div>
-      </form>
-
-      {/* Section G: run history */}
-      <section style={{ marginBottom: '1.5rem' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>Run history</h2>
+    <div className="app-root">
+      {/* Left: run history only */}
+      <aside className="app-sidebar-left">
+        <h2 className="run-history-title">Run history</h2>
         {runs.length === 0 ? (
-          <p style={{ color: '#666', fontSize: '0.9rem' }}>No runs yet. Generate a document above.</p>
+          <p className="run-history-empty">No runs yet. Generate a document to get started.</p>
         ) : (
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {runs.map((r) => (
-              <li key={r.run_id} style={{ marginBottom: '0.35rem' }}>
+              <li key={r.run_id}>
                 <button
                   type="button"
+                  className={`run-card ${runId === r.run_id ? 'is-selected' : ''}`}
                   onClick={() => handleOpenRun(r.run_id)}
-                  style={{
-                    padding: '0.35rem 0.5rem',
-                    textAlign: 'left',
-                    width: '100%',
-                    maxWidth: '32rem',
-                    background: runId === r.run_id ? '#e0e0e0' : 'transparent',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '0.9rem',
-                  }}
                 >
-                  {r.template_id} — {formatDate(r.updated_at)} ({r.run_id.slice(0, 8)})
+                  <span className="run-card-name">{templateName(r.template_id)}</span>
+                  <span className="run-card-meta">{formatDate(r.updated_at)}</span>
+                  {runId === r.run_id && run && (
+                    <span className={`run-card-status ${run.status}`}>{run.status}</span>
+                  )}
                 </button>
               </li>
             ))}
           </ul>
         )}
-      </section>
+      </aside>
 
-      {error && (
-        <p style={{ color: 'crimson', marginBottom: '1rem' }} role="alert">
-          {error}
-        </p>
-      )}
+      {/* Main: form + document preview */}
+      <main className="app-main">
+        <h1>Document Generation Engine</h1>
 
+        <form onSubmit={handleSubmit} className="form-card">
+          <h2>New document</h2>
+          <div className="form-group">
+            <label htmlFor="template" className="form-label">Template</label>
+            <select
+              id="template"
+              className="select"
+              value={templateId}
+              onChange={(e) => setTemplateId(e.target.value)}
+              disabled={submitting || !!runId}
+            >
+              {templates.map((t) => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </select>
+          </div>
+          {templateId && (
+            <>
+              <div className="form-group">
+                <label htmlFor="areaOfLaw" className="form-label">
+                  Area of Law <span className="form-label-optional">(required)</span>
+                </label>
+                <select
+                  id="areaOfLaw"
+                  className="select"
+                  value={areaOfLaw}
+                  onChange={(e) => { setAreaOfLaw(e.target.value); setSubArea('') }}
+                  disabled={submitting || !!runId}
+                >
+                  <option value="">— Select area of law —</option>
+                  {AREA_OF_LAW.map(({ area }) => (
+                    <option key={area} value={area}>{area}</option>
+                  ))}
+                </select>
+              </div>
+              {areaOfLaw && (() => {
+                const selected = AREA_OF_LAW.find((r) => r.area === areaOfLaw)
+                const subs = selected?.subs ?? []
+                if (subs.length === 0) return null
+                return (
+                  <div className="form-group">
+                    <label htmlFor="subArea" className="form-label">
+                      Jurisdiction <span className="form-label-optional">(optional)</span>
+                    </label>
+                    <select
+                      id="subArea"
+                      className="select"
+                      value={subArea}
+                      onChange={(e) => setSubArea(e.target.value)}
+                      disabled={submitting || !!runId}
+                    >
+                      <option value="">— Select sub-area (optional) —</option>
+                      {subs.map((sub) => (
+                        <option key={sub} value={sub}>{sub}</option>
+                      ))}
+                    </select>
+                  </div>
+                )
+              })()}
+            </>
+          )}
+          {(templateId === 'implementation_guidance' || templateId === 'workflow_pattern') ? (
+            <>
+              <div className="form-group">
+                <label htmlFor="topic" className="form-label">
+                  Topic <span className="form-label-optional">(required)</span>
+                </label>
+                <input
+                  id="topic"
+                  type="text"
+                  className="input"
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  disabled={submitting || !!runId}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="context" className="form-label">
+                  Context <span className="form-label-optional">(optional)</span>
+                </label>
+                <textarea
+                  id="context"
+                  className="textarea"
+                  value={context}
+                  onChange={(e) => setContext(e.target.value)}
+                  disabled={submitting || !!runId}
+                  placeholder="Additional context for the guidance"
+                  rows={3}
+                />
+              </div>
+            </>
+          ) : templateId ? (
+            <>
+              <div className="form-group">
+                <label htmlFor="clientName" className="form-label">Client name</label>
+                <input
+                  id="clientName"
+                  type="text"
+                  className="input"
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
+                  disabled={submitting || !!runId}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="effectiveDate" className="form-label">Effective date</label>
+                <input
+                  id="effectiveDate"
+                  type="text"
+                  className="input"
+                  value={effectiveDate}
+                  onChange={(e) => setEffectiveDate(e.target.value)}
+                  placeholder="e.g. 2025-01-15"
+                  disabled={submitting || !!runId}
+                />
+              </div>
+            </>
+          ) : null}
+          <div className="form-actions">
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={
+                submitting ||
+                !templateId ||
+                !areaOfLaw.trim() ||
+                ((templateId === 'implementation_guidance' || templateId === 'workflow_pattern') && !topic.trim())
+              }
+            >
+              {submitting && <span className="spinner" />}
+              {submitting ? 'Generating…' : 'Generate'}
+            </button>
+            {runId && (
+              <button type="button" className="btn-secondary" onClick={reset}>
+                New run
+              </button>
+            )}
+          </div>
+        </form>
+
+        {error && <p style={{ color: 'var(--danger)', marginBottom: 'var(--space-2)', fontSize: 'var(--text-sm)' }} role="alert">{error}</p>}
+
+        <section className="doc-preview">
+          <h2 className="doc-preview-title">Document preview</h2>
+          {docPreviewState === 'none' && (
+            <div className="doc-preview-empty">
+              Select a run from the sidebar or generate a document to see the preview.
+            </div>
+          )}
+          {docPreviewState === 'generating' && (
+            <div className="doc-preview-generating">
+              <span className="spinner" />
+              <span>Generating…</span>
+              {run?.progress_message && <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>{run.progress_message}</span>}
+            </div>
+          )}
+          {docPreviewState === 'failed' && run?.error && (
+            <div className="doc-preview-failed" role="alert">
+              {run.error}
+            </div>
+          )}
+          {docPreviewState === 'completed' && (
+            run?.assembled
+              ? <div className="doc-preview-body">{run.assembled.content}</div>
+              : <div className="doc-preview-empty">No assembled document.</div>
+          )}
+        </section>
+      </main>
+
+      {/* Right: run metadata when run selected */}
       {runId && run && (
-        <section style={{ marginTop: '1.5rem' }}>
-          <h2>Run status</h2>
-          <p>
-            <strong>Status:</strong> {run.status}
-            {run.progress_message && (
-              <span style={{ marginLeft: '0.5rem', color: '#555' }}>{` — ${run.progress_message}`}</span>
-            )}
-            {run.error && (
-              <span style={{ color: 'crimson', marginLeft: '0.5rem' }}>{run.error}</span>
-            )}
-          </p>
-
+        <aside className="app-sidebar-right">
+          <h2 className="panel-title">Run details</h2>
+          <div className="run-status-line">
+            <span className={`run-status-dot ${run.status}`} />
+            <span>{run.status}</span>
+          </div>
+          {(run.status === 'running' || run.status === 'pending') && run.progress_message && (
+            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginBottom: 'var(--space-2)' }}>{run.progress_message}</p>
+          )}
+          {run.error && <div className="run-error-alert" role="alert">{run.error}</div>}
           {run.status === 'completed' && (
             <>
-              <h3>Section outputs</h3>
+              <h3 className="panel-title" style={{ marginTop: 'var(--space-2)' }}>Sections</h3>
               {run.sections.length === 0 ? (
-                <p>No sections.</p>
+                <p className="run-history-empty">No sections.</p>
               ) : (
-                <ul style={{ listStyle: 'none', padding: 0 }}>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                   {run.sections.map((s) => (
-                    <li key={s.section_id} style={{ marginBottom: '1rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                        <strong>{s.section_id}</strong>
+                    <li key={s.section_id} className="section-item">
+                      <div className="section-item-header">
+                        <strong style={{ flex: 1, minWidth: 0 }}>{s.section_id}</strong>
                         <button
                           type="button"
+                          className="btn-secondary btn-sm"
                           onClick={() => handleRerunSection(s.section_id)}
                           disabled={rerunningSectionId !== null}
-                          style={{ fontSize: '0.8rem', padding: '0.2rem 0.5rem' }}
                         >
                           {rerunningSectionId === s.section_id ? 'Rerunning…' : 'Rerun'}
                         </button>
                       </div>
-                      <pre
-                        style={{
-                          marginTop: '0.25rem',
-                          padding: '0.75rem',
-                          background: '#f5f5f5',
-                          borderRadius: '4px',
-                          overflow: 'auto',
-                          fontSize: '0.9rem',
-                          whiteSpace: 'pre-wrap',
-                        }}
-                      >
-                        {s.content}
-                      </pre>
+                      <pre className="section-item-content">{s.content}</pre>
                     </li>
                   ))}
                 </ul>
               )}
-
-              <h3>Assembled document</h3>
-              {run.assembled ? (
-                <pre
-                  style={{
-                    padding: '1rem',
-                    background: '#f5f5f5',
-                    borderRadius: '4px',
-                    overflow: 'auto',
-                    whiteSpace: 'pre-wrap',
-                  }}
-                >
-                  {run.assembled.content}
-                </pre>
-              ) : (
-                <p>No assembled document.</p>
-              )}
-
-              {/* Section G: version history (prototype: one entry per run) */}
               {versions.length > 0 && (
                 <>
-                  <h3>Versions</h3>
-                  <ul style={{ listStyle: 'none', padding: 0, fontSize: '0.9rem' }}>
+                  <h3 className="panel-title" style={{ marginTop: 'var(--space-2)' }}>Versions</h3>
+                  <ul className="versions-list">
                     {versions.map((v, i) => (
-                      <li key={i} style={{ marginBottom: '0.25rem', color: '#555' }}>
-                        {formatDate(v.updated_at)} — {v.section_count} sections
-                      </li>
+                      <li key={i}>{formatDate(v.updated_at)} — {v.section_count} sections</li>
                     ))}
                   </ul>
                 </>
               )}
             </>
           )}
-        </section>
+        </aside>
+      )}
+
+      {toast && (
+        <div className="toast-container">
+          <div className={`toast ${toast.type}`} role="status">
+            <span>{toast.message}</span>
+            <button type="button" className="toast-dismiss" onClick={() => setToast(null)} aria-label="Dismiss">×</button>
+          </div>
+        </div>
       )}
     </div>
   )
