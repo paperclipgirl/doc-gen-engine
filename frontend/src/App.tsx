@@ -499,57 +499,61 @@ function App() {
         </section>
       </main>
 
-      {/* Right: run metadata when run selected */}
-      {runId && run && (
-        <aside className="app-sidebar-right">
-          <h2 className="panel-title">Run details</h2>
-          <div className="run-status-line">
-            <span className={`run-status-dot ${run.status}`} />
-            <span>{run.status}</span>
-          </div>
-          {(run.status === 'running' || run.status === 'pending') && run.progress_message && (
-            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginBottom: 'var(--space-2)' }}>{run.progress_message}</p>
-          )}
-          {run.error && <div className="run-error-alert" role="alert">{run.error}</div>}
-          {run.status === 'completed' && (
-            <>
-              <h3 className="panel-title" style={{ marginTop: 'var(--space-2)' }}>Sections</h3>
-              {run.sections.length === 0 ? (
-                <p className="run-history-empty">No sections.</p>
-              ) : (
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                  {run.sections.map((s) => (
-                    <li key={s.section_id} className="section-item">
-                      <div className="section-item-header">
-                        <strong style={{ flex: 1, minWidth: 0 }}>{s.section_id}</strong>
-                        <button
-                          type="button"
-                          className="btn-secondary btn-sm"
-                          onClick={() => handleRerunSection(s.section_id)}
-                          disabled={rerunningSectionId !== null}
-                        >
-                          {rerunningSectionId === s.section_id ? 'Rerunning…' : 'Rerun'}
-                        </button>
-                      </div>
-                      <pre className="section-item-content">{s.content}</pre>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {versions.length > 0 && (
-                <>
-                  <h3 className="panel-title" style={{ marginTop: 'var(--space-2)' }}>Versions</h3>
-                  <ul className="versions-list">
-                    {versions.map((v, i) => (
-                      <li key={i}>{formatDate(v.updated_at)} — {v.section_count} sections</li>
+      {/* Right: run metadata (always visible for balanced layout) */}
+      <aside className={`app-sidebar-right ${runId && run ? '' : 'is-empty'}`}>
+        {runId && run ? (
+          <>
+            <h2 className="panel-title">Run details</h2>
+            <div className="run-status-line">
+              <span className={`run-status-dot ${run.status}`} />
+              <span>{run.status}</span>
+            </div>
+            {(run.status === 'running' || run.status === 'pending') && run.progress_message && (
+              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginBottom: 'var(--space-2)' }}>{run.progress_message}</p>
+            )}
+            {run.error && <div className="run-error-alert" role="alert">{run.error}</div>}
+            {run.status === 'completed' && (
+              <>
+                <h3 className="panel-title" style={{ marginTop: 'var(--space-2)' }}>Sections</h3>
+                {run.sections.length === 0 ? (
+                  <p className="run-history-empty">No sections.</p>
+                ) : (
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                    {run.sections.map((s) => (
+                      <li key={s.section_id} className="section-item">
+                        <div className="section-item-header">
+                          <strong style={{ flex: 1, minWidth: 0 }}>{s.section_id}</strong>
+                          <button
+                            type="button"
+                            className="btn-secondary btn-sm"
+                            onClick={() => handleRerunSection(s.section_id)}
+                            disabled={rerunningSectionId !== null}
+                          >
+                            {rerunningSectionId === s.section_id ? 'Rerunning…' : 'Rerun'}
+                          </button>
+                        </div>
+                        <pre className="section-item-content">{s.content}</pre>
+                      </li>
                     ))}
                   </ul>
-                </>
-              )}
-            </>
-          )}
-        </aside>
-      )}
+                )}
+                {versions.length > 0 && (
+                  <>
+                    <h3 className="panel-title" style={{ marginTop: 'var(--space-2)' }}>Versions</h3>
+                    <ul className="versions-list">
+                      {versions.map((v, i) => (
+                        <li key={i}>{formatDate(v.updated_at)} — {v.section_count} sections</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </>
+            )}
+          </>
+        ) : (
+          <p className="panel-empty-state">Select a run from the sidebar or generate a document to view run details here.</p>
+        )}
+      </aside>
 
       {toast && (
         <div className="toast-container">
