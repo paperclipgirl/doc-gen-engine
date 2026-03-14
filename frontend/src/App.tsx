@@ -817,10 +817,10 @@ function App() {
                   disabled={submitting || !!runId}
                   aria-haspopup="listbox"
                   aria-expanded={areaLawPickerOpen}
-                  aria-label={areaOfLaw ? (subArea ? `${areaOfLaw} – ${subArea}` : areaOfLaw) : 'Select practice area'}
+                  aria-label={areaOfLaw ? (subArea ? `${areaOfLaw} – ${subArea}` : areaOfLaw) : 'Select all'}
                 >
                   <span className="component-picker-trigger-text">
-                    {areaOfLaw ? (subArea ? `${areaOfLaw} – ${subArea}` : areaOfLaw) : 'Select practice area'}
+                    {areaOfLaw ? (subArea ? `${areaOfLaw} – ${subArea}` : areaOfLaw) : 'Select all'}
                   </span>
                   <span className="component-picker-trigger-icon" aria-hidden>▾</span>
                 </button>
@@ -847,6 +847,24 @@ function App() {
                       />
                     </div>
                     <div className="component-picker-list">
+                      <div className="component-picker-group">
+                        <ul className="component-picker-items" role="group" aria-label="Quick select">
+                          <li role="option" aria-selected={!areaOfLaw && !subArea}>
+                            <button
+                              type="button"
+                              className={`component-picker-item ${!areaOfLaw && !subArea ? 'is-selected' : ''}`}
+                              onClick={() => {
+                                setAreaOfLaw('')
+                                setSubArea('')
+                                setAreaLawPickerOpen(false)
+                                setAreaLawSearchQuery('')
+                              }}
+                            >
+                              Select all
+                            </button>
+                          </li>
+                        </ul>
+                      </div>
                       {AREA_OF_LAW.map(({ area, subs }) => {
                         const q = areaLawSearchQuery.trim().toLowerCase()
                         const areaMatches = !q || area.toLowerCase().includes(q)
@@ -1175,7 +1193,6 @@ function App() {
                   submitting ||
                   !!runId ||
                   !templateId ||
-                  !areaOfLaw.trim() ||
                   ((templateId === 'implementation_guidance' || templateId === 'workflow_pattern' || templateId === 'hld') && !topic.trim()) ||
                   hldJurisdictionMissing
                 }
