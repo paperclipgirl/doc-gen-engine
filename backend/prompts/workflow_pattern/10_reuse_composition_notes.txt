@@ -1,0 +1,42 @@
+OBJECTIVE
+Describe how this pattern fits reuse and composition with other patterns or accelerators.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Describe reuse and composition at an advisory level.
+
+Include:
+- how this pattern composes with other patterns or solutions
+- risk of duplication or overlap with other guidance
+- jurisdiction neutrality and modular reuse posture
+- how this pattern preserves accelerator strategy
+
+Do NOT:
+- redesign or define other accelerators
+- assume dependent accelerators exist
+- expand scope beyond advisory posture
+- introduce configuration or build detail
+
+OUTPUT FORMAT
+
+Return markdown suitable for a document section.
+
+Section Heading:
+Reuse and Composition Notes
+
+End with:
+
+Validation Checklist
+
+- Reuse and composition clearly described
+- No hidden scope expansion
+- Advisory posture preserved

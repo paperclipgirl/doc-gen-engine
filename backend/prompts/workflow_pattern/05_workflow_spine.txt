@@ -1,0 +1,41 @@
+OBJECTIVE
+Describe the main sequence of the workflow at an advisory level.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Describe the workflow spine: the main sequence of steps or stages at a high level.
+
+Include:
+- the principal steps or stages in order
+- who or what is responsible at each stage (roles, not configuration)
+- how control and handoff work conceptually
+
+Do NOT:
+- define workflow routing logic
+- define states or transitions in technical detail
+- introduce configuration mechanics
+- define fields or data structures
+
+OUTPUT FORMAT
+
+Return markdown suitable for a document section.
+
+Section Heading:
+Workflow Spine
+
+End with:
+
+Validation Checklist
+
+- Spine clearly described at advisory level
+- No workflow logic or configuration detail
+- Human authority and governance preserved

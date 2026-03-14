@@ -1,0 +1,40 @@
+OBJECTIVE
+Describe how exceptions and escalations are handled in this pattern.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Describe exception and escalation behaviour at an advisory level.
+
+Include:
+- what constitutes an exception in this pattern
+- how escalation is triggered and who is responsible
+- how governance and human authority are preserved
+
+Do NOT:
+- define exception routing or workflow logic
+- define configuration or build steps
+- introduce structural modelling
+
+OUTPUT FORMAT
+
+Return markdown suitable for a document section.
+
+Section Heading:
+Exceptions and Escalation
+
+End with:
+
+Validation Checklist
+
+- Exception and escalation posture clear
+- Human authority preserved
+- No workflow or configuration mechanics introduced

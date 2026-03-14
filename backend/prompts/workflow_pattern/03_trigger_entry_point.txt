@@ -1,0 +1,40 @@
+OBJECTIVE
+Describe what triggers the workflow and where it is entered.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Describe the trigger conditions and entry points for this workflow pattern.
+
+Include:
+- what initiates the workflow (user action, system event, lifecycle stage, etc.)
+- where in the lifecycle or UI the workflow is entered
+- any pre-conditions that must hold before entry
+
+Do NOT:
+- define workflow routing or state machines
+- introduce configuration or field definitions
+- define new entities or hierarchy
+
+OUTPUT FORMAT
+
+Return markdown suitable for a document section.
+
+Section Heading:
+Trigger and Entry Point
+
+End with:
+
+Validation Checklist
+
+- Triggers clearly described
+- Entry point positioned in lifecycle
+- No workflow or configuration mechanics introduced

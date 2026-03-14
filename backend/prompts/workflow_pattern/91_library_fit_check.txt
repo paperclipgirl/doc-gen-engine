@@ -1,0 +1,44 @@
+OBJECTIVE
+Assess how well this Workflow Pattern fits the pattern library and accelerator catalogue.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Assess library fit for the full document (previous sections).
+
+Consider:
+- naming and discoverability in a catalogue
+- overlap or conflict with other patterns
+- jurisdiction and practice-area neutrality
+- reuse and composition clarity
+- suitability for inclusion in the accelerator library
+
+Do NOT:
+- modify the pattern content
+- introduce new structural or configuration detail
+- expand scope beyond advisory assessment
+
+OUTPUT FORMAT
+
+Return a short assessment section.
+
+Section Heading:
+Library Fit Check
+
+Include:
+- Catalogue fit (suitable / with notes)
+- Overlap or conflict (none / describe)
+- Neutrality and reuse (pass / concerns)
+- Recommendation (ready for library / clarify first)
+
+VALIDATION
+
+Ensure the output is an assessment only; no new pattern content.

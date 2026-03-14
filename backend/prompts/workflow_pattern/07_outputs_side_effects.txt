@@ -1,0 +1,40 @@
+OBJECTIVE
+Describe the outputs and side effects of the workflow pattern.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Describe what the workflow produces and what side effects it may have.
+
+Include:
+- primary outputs (artefacts, decisions, state changes at conceptual level)
+- side effects on other systems or lifecycle stages
+- reporting or visibility implications
+
+Do NOT:
+- define data structures or field schemas
+- define report or dashboard builds
+- introduce configuration mechanics
+
+OUTPUT FORMAT
+
+Return markdown suitable for a document section.
+
+Section Heading:
+Outputs and Side Effects
+
+End with:
+
+Validation Checklist
+
+- Outputs and side effects clearly described
+- No structural or configuration detail introduced
+- Reporting implications at conceptual level only

@@ -1,0 +1,32 @@
+OBJECTIVE
+Produce a consolidated validation checklist for the Workflow Pattern document.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Generate a consolidated validation checklist confirming the pattern document satisfies the Workflow Pattern discipline.
+
+Checklist items must confirm:
+- advisory posture maintained
+- no workflow routing or configuration mechanics introduced
+- no structural modelling drift
+- governance and human authority preserved
+- no new Work Types or hierarchy introduced
+- reuse and jurisdiction neutrality preserved
+
+OUTPUT FORMAT
+
+Return markdown suitable for a document section.
+
+Section Heading:
+Validation Checklist
+
+Return only the checklist (bulleted or numbered items).

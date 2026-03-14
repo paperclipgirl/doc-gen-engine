@@ -1,0 +1,41 @@
+OBJECTIVE
+Define the preconditions and required inputs for the workflow pattern.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Describe what must be true or available before the workflow can proceed.
+
+Include:
+- preconditions (data, state, permissions, or lifecycle position)
+- required inputs (conceptual; do not define field schemas)
+- dependencies on other patterns or systems
+
+Do NOT:
+- define field structures or data models
+- define configuration mechanics
+- introduce new Work Types or hierarchy
+- specify build or implementation steps
+
+OUTPUT FORMAT
+
+Return markdown suitable for a document section.
+
+Section Heading:
+Preconditions and Required Inputs
+
+End with:
+
+Validation Checklist
+
+- Preconditions clearly stated
+- Required inputs described at conceptual level
+- No structural modelling or configuration detail

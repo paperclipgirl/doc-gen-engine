@@ -1,0 +1,42 @@
+OBJECTIVE
+Define the intent of the workflow pattern and when it applies.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Describe the purpose of this workflow pattern and its applicability.
+
+Include:
+- the business or operational intent
+- when this pattern should be used
+- which lifecycle stages or personas it applies to
+- when it should not be used
+
+Do NOT:
+- define workflow logic or routing
+- introduce structural modelling
+- define configuration mechanics
+- introduce new Work Types or hierarchy
+
+OUTPUT FORMAT
+
+Return markdown suitable for a document section.
+
+Section Heading:
+Intent and Applicability
+
+End with:
+
+Validation Checklist
+
+- Intent clearly articulated
+- Applicability boundaries explicit
+- No structural or configuration detail introduced

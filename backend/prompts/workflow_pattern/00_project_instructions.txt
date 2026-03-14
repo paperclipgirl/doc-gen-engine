@@ -1,0 +1,39 @@
+OBJECTIVE
+Confirm the scope of the Workflow Pattern document before generating any content.
+
+INPUT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Use the above to confirm:
+- the workflow pattern being documented
+- the lifecycle and operational context it applies to
+- any jurisdictional or practice-area scope
+
+INSTRUCTIONS
+
+1. Confirm the workflow pattern and decision area.
+2. Confirm the lifecycle positioning (Instruction, Matter, Work Type, integration layer, etc.).
+3. Confirm jurisdictional or cross-context scope.
+4. Identify any missing information required before pattern documentation can begin.
+
+OUTPUT FORMAT
+
+Do not generate Workflow Pattern content yet.
+
+Return a short confirmation structure:
+
+Pattern Topic
+Decision Area
+Lifecycle Layer
+Jurisdiction Scope
+Clarifications Required
+
+VALIDATION
+
+Ensure:
+- the pattern scope is clearly defined
+- lifecycle positioning is explicit
+- no workflow or configuration detail is generated yet

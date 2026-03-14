@@ -1,0 +1,25 @@
+OBJECTIVE
+Generate a concise, reusable name for this workflow pattern.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+INSTRUCTIONS
+
+Generate a short pattern name that:
+- describes the workflow or decision pattern
+- is reusable across practice areas and jurisdictions
+- avoids client-specific or marketing language
+- avoids numbering
+- is suitable for a pattern library catalogue
+
+OUTPUT FORMAT
+
+Return only the pattern name (one line).
+
+VALIDATION
+
+Ensure the name clearly implies the workflow pattern and remains neutral and reusable.

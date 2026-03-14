@@ -62,10 +62,7 @@ def api_get_template(template_id: str):
         "id": t.id,
         "name": t.name,
         "description": t.description,
-        "sections": [
-            {"id": s.id, "prompt_path": s.prompt_path, "display_name": s.display_name, "depends_on": s.depends_on, "progress_message": s.progress_message}
-            for s in t.sections
-        ],
+        "sections": [s.model_dump(mode="json") for s in t.sections],
     }
 
 

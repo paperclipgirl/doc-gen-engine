@@ -1,0 +1,107 @@
+{
+  "id": "workflow_pattern",
+  "name": "Workflow Pattern",
+  "description": "Reusable automation blueprint for Clio Operate workflow patterns.",
+  "sections": [
+    {
+      "id": "project_instructions",
+      "prompt_path": "workflow_pattern/00_project_instructions.txt",
+      "display_name": "Project Instructions",
+      "progress_message": "Confirming workflow pattern scope",
+      "depends_on": []
+    },
+    {
+      "id": "pattern_name",
+      "prompt_path": "workflow_pattern/01_pattern_name.txt",
+      "display_name": "Pattern Name",
+      "progress_message": "Generating workflow pattern name",
+      "depends_on": []
+    },
+    {
+      "id": "intent_applicability",
+      "prompt_path": "workflow_pattern/02_intent_applicability.txt",
+      "display_name": "Intent and Applicability",
+      "progress_message": "Defining intent and applicability",
+      "depends_on": []
+    },
+    {
+      "id": "trigger_entry_point",
+      "prompt_path": "workflow_pattern/03_trigger_entry_point.txt",
+      "display_name": "Trigger and Entry Point",
+      "progress_message": "Defining trigger and entry point",
+      "depends_on": []
+    },
+    {
+      "id": "preconditions_required_inputs",
+      "prompt_path": "workflow_pattern/04_preconditions_required_inputs.txt",
+      "display_name": "Preconditions and Required Inputs",
+      "progress_message": "Defining preconditions and required inputs",
+      "depends_on": []
+    },
+    {
+      "id": "workflow_spine",
+      "prompt_path": "workflow_pattern/05_workflow_spine.txt",
+      "display_name": "Workflow Spine",
+      "progress_message": "Drafting workflow spine",
+      "depends_on": []
+    },
+    {
+      "id": "exceptions_escalation",
+      "prompt_path": "workflow_pattern/06_exceptions_escalation.txt",
+      "display_name": "Exceptions and Escalation",
+      "progress_message": "Defining exceptions and escalation",
+      "depends_on": []
+    },
+    {
+      "id": "outputs_side_effects",
+      "prompt_path": "workflow_pattern/07_outputs_side_effects.txt",
+      "display_name": "Outputs and Side Effects",
+      "progress_message": "Defining outputs and side effects",
+      "depends_on": []
+    },
+    {
+      "id": "governance_controls_alignment",
+      "prompt_path": "workflow_pattern/08_governance_controls_alignment.txt",
+      "display_name": "Governance and Controls Alignment",
+      "progress_message": "Assessing governance and controls alignment",
+      "depends_on": []
+    },
+    {
+      "id": "configuration_guardrails",
+      "prompt_path": "workflow_pattern/09_configuration_guardrails.txt",
+      "display_name": "Configuration Guardrails",
+      "progress_message": "Defining configuration guardrails",
+      "depends_on": []
+    },
+    {
+      "id": "reuse_composition_notes",
+      "prompt_path": "workflow_pattern/10_reuse_composition_notes.txt",
+      "display_name": "Reuse and Composition Notes",
+      "progress_message": "Documenting reuse and composition notes",
+      "depends_on": []
+    },
+    {
+      "id": "validation_checklist",
+      "prompt_path": "workflow_pattern/11_validation_checklist.txt",
+      "display_name": "Validation Checklist",
+      "progress_message": "Running workflow pattern validation",
+      "depends_on": []
+    },
+    {
+      "id": "pattern_review_pass",
+      "prompt_path": "workflow_pattern/90_design_reviewer_pass.txt",
+      "display_name": "Pattern Review Pass",
+      "progress_message": "Running design reviewer pass",
+      "depends_on": [],
+      "section_type": "meta"
+    },
+    {
+      "id": "library_fit_check",
+      "prompt_path": "workflow_pattern/91_library_fit_check.txt",
+      "display_name": "Library Fit Check",
+      "progress_message": "Checking library fit",
+      "depends_on": [],
+      "section_type": "meta"
+    }
+  ]
+}

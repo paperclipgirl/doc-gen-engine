@@ -105,10 +105,11 @@ function App() {
     setError(null)
     setRun(null)
     setSubmitting(true)
-    const structured_input =
-      templateId === 'implementation_guidance'
-        ? { topic, jurisdiction, context: context || '' }
-        : { client_name: clientName, effective_date: effectiveDate }
+    const useTopicJurisdictionContext =
+      templateId === 'implementation_guidance' || templateId === 'workflow_pattern'
+    const structured_input = useTopicJurisdictionContext
+      ? { topic, jurisdiction, context: context || '' }
+      : { client_name: clientName, effective_date: effectiveDate }
     createRun({
       template_id: templateId,
       structured_input,
@@ -188,7 +189,7 @@ function App() {
             ))}
           </select>
         </div>
-        {templateId === 'implementation_guidance' ? (
+        {(templateId === 'implementation_guidance' || templateId === 'workflow_pattern') ? (
           <>
             <div style={{ marginBottom: '1rem' }}>
               <label htmlFor="topic" style={{ display: 'block', marginBottom: '0.25rem' }}>
@@ -268,7 +269,8 @@ function App() {
             disabled={
               submitting ||
               !templateId ||
-              (templateId === 'implementation_guidance' && (!topic.trim() || !jurisdiction.trim()))
+              ((templateId === 'implementation_guidance' || templateId === 'workflow_pattern') &&
+                (!topic.trim() || !jurisdiction.trim()))
             }
           >
             {submitting ? 'Starting…' : 'Generate'}

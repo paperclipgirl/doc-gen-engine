@@ -8,13 +8,14 @@ from pydantic import BaseModel, Field
 
 
 class TemplateSection(BaseModel):
-    """One section in a template: id, prompt_path, optional display_name, dependencies, optional progress message for UI."""
+    """One section in a template: id, prompt_path, optional display_name, dependencies, optional progress message, optional section_type (e.g. meta for review passes)."""
 
     id: str
     prompt_path: str
     display_name: Optional[str] = None
     depends_on: list[str] = Field(default_factory=list, description="Section ids that must complete before this section runs. Empty = no deps. For now execution is still list-ordered; later runner can use this for dependency-based order.")
     progress_message: Optional[str] = None
+    section_type: Optional[str] = None  # e.g. "meta" for review/design-review sections
 
 
 class Template(BaseModel):

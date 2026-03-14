@@ -1,0 +1,41 @@
+OBJECTIVE
+Explain how this workflow pattern aligns with governance and controls.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Describe governance and control alignment for this pattern.
+
+Include:
+- segregation of duties implications
+- audit trail and accountability expectations
+- approval boundaries and human authority
+- regulatory or operational risk considerations
+
+Do NOT:
+- define approval workflows or routing
+- encode procedural law or configuration
+- introduce workflow logic or build detail
+
+OUTPUT FORMAT
+
+Return markdown suitable for a document section.
+
+Section Heading:
+Governance and Controls Alignment
+
+End with:
+
+Validation Checklist
+
+- Governance impact clearly described
+- Human authority preserved
+- No workflow logic or configuration introduced

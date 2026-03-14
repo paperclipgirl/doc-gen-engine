@@ -1,0 +1,42 @@
+OBJECTIVE
+Perform a design reviewer pass on the full Workflow Pattern document.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Review the full document (previous sections) as a design reviewer.
+
+Assess:
+- consistency with Workflow Pattern discipline (no structural drift, no configuration mechanics, governance preserved)
+- clarity of intent, triggers, spine, exceptions, outputs, governance, guardrails, reuse
+- any gaps or contradictions
+
+Do NOT:
+- rewrite the document
+- add new structural or configuration detail
+- introduce new Work Types or hierarchy
+
+OUTPUT FORMAT
+
+Return a short review section.
+
+Section Heading:
+Design Reviewer Pass
+
+Include:
+- Discipline alignment (pass / concerns)
+- Clarity and completeness (pass / concerns)
+- Gaps or follow-ups (if any)
+- No content changes; advisory review only
+
+VALIDATION
+
+Ensure the output is a review only; no new pattern content or mechanics.

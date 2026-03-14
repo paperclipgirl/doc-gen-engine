@@ -1,0 +1,40 @@
+OBJECTIVE
+Describe configuration guardrails at an advisory level (what must be respected, not how to configure).
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Describe the guardrails that configuration or implementation must respect.
+
+Include:
+- invariants that must hold (e.g. data integrity, sequencing)
+- boundaries that must not be crossed
+- principles for safe configuration (without defining build steps)
+
+Do NOT:
+- define configuration mechanics or build instructions
+- define fields, workflow routing, or structural models
+- introduce new Work Types or hierarchy
+
+OUTPUT FORMAT
+
+Return markdown suitable for a document section.
+
+Section Heading:
+Configuration Guardrails
+
+End with:
+
+Validation Checklist
+
+- Guardrails described at principle level
+- No configuration or build detail
+- No structural modelling drift
