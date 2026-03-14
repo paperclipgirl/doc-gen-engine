@@ -216,7 +216,7 @@ function App() {
       subArea ? `${areaOfLaw} – ${subArea}` : areaOfLaw
     const structured_input = useTopicJurisdictionContext
       ? { topic, jurisdiction: jurisdictionValue, context: context || '' }
-      : { client_name: clientName, effective_date: effectiveDate }
+      : { client_name: clientName, effective_date: effectiveDate, jurisdiction: jurisdictionValue }
     createRun({
       template_id: templateId,
       structured_input,
@@ -296,21 +296,8 @@ function App() {
             ))}
           </select>
         </div>
-        {(templateId === 'implementation_guidance' || templateId === 'workflow_pattern') ? (
+        {templateId && (
           <>
-            <div style={{ marginBottom: '1rem' }}>
-              <label htmlFor="topic" style={{ display: 'block', marginBottom: '0.25rem' }}>
-                Topic <span style={{ color: '#888' }}>(required)</span>
-              </label>
-              <input
-                id="topic"
-                type="text"
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                disabled={submitting || !!runId}
-                style={{ padding: '0.35rem', width: '100%', maxWidth: '20rem' }}
-              />
-            </div>
             <div style={{ marginBottom: '1rem' }}>
               <label htmlFor="areaOfLaw" style={{ display: 'block', marginBottom: '0.25rem' }}>
                 Area of Law <span style={{ color: '#888' }}>(required)</span>
@@ -359,6 +346,23 @@ function App() {
                 </div>
               )
             })()}
+          </>
+        )}
+        {(templateId === 'implementation_guidance' || templateId === 'workflow_pattern') ? (
+          <>
+            <div style={{ marginBottom: '1rem' }}>
+              <label htmlFor="topic" style={{ display: 'block', marginBottom: '0.25rem' }}>
+                Topic <span style={{ color: '#888' }}>(required)</span>
+              </label>
+              <input
+                id="topic"
+                type="text"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                disabled={submitting || !!runId}
+                style={{ padding: '0.35rem', width: '100%', maxWidth: '20rem' }}
+              />
+            </div>
             <div style={{ marginBottom: '1rem' }}>
               <label htmlFor="context" style={{ display: 'block', marginBottom: '0.25rem' }}>
                 Context <span style={{ color: '#888' }}>(optional)</span>
@@ -374,7 +378,7 @@ function App() {
               />
             </div>
           </>
-        ) : (
+        ) : templateId ? (
           <>
             <div style={{ marginBottom: '1rem' }}>
               <label htmlFor="clientName" style={{ display: 'block', marginBottom: '0.25rem' }}>
@@ -404,15 +408,16 @@ function App() {
               />
             </div>
           </>
-        )}
+        ) : null}
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <button
             type="submit"
             disabled={
               submitting ||
               !templateId ||
+              !areaOfLaw.trim() ||
               ((templateId === 'implementation_guidance' || templateId === 'workflow_pattern') &&
-                (!topic.trim() || !areaOfLaw.trim()))
+                !topic.trim())
             }
           >
             {submitting ? 'Starting…' : 'Generate'}
