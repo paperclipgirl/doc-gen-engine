@@ -1,2 +1,2 @@
 # Introduction (placeholder)
-Generate a short contract introduction for client: {{clientName}}, effective {{effectiveDate}}.
+Generate a short contract introduction for client: {{clientName}}.

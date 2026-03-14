@@ -135,7 +135,6 @@ function App() {
   const [templates, setTemplates] = useState<TemplateSummary[]>([])
   const [templateId, setTemplateId] = useState<string>('')
   const [clientName, setClientName] = useState('')
-  const [effectiveDate, setEffectiveDate] = useState('')
   const [topic, setTopic] = useState('')
   const [areaOfLaw, setAreaOfLaw] = useState('')
   const [subArea, setSubArea] = useState('')
@@ -223,7 +222,7 @@ function App() {
       subArea ? `${areaOfLaw} – ${subArea}` : areaOfLaw
     const structured_input: Record<string, string> = useTopicJurisdictionContext
       ? { topic, jurisdiction: jurisdictionValue, context: context || '' }
-      : { client_name: clientName, effective_date: effectiveDate, jurisdiction: jurisdictionValue }
+      : { client_name: clientName, jurisdiction: jurisdictionValue }
     createRun({
       template_id: templateId,
       structured_input,
@@ -431,18 +430,6 @@ function App() {
                   className="input"
                   value={clientName}
                   onChange={(e) => setClientName(e.target.value)}
-                  disabled={submitting || !!runId}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="effectiveDate" className="form-label">Effective date</label>
-                <input
-                  id="effectiveDate"
-                  type="text"
-                  className="input"
-                  value={effectiveDate}
-                  onChange={(e) => setEffectiveDate(e.target.value)}
-                  placeholder="e.g. 2025-01-15"
                   disabled={submitting || !!runId}
                 />
               </div>

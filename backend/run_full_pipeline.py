@@ -14,7 +14,7 @@ from src.core import storage
 
 RUN_ID = "section-d-pipeline-run"
 TEMPLATE_ID = "contract"
-STRUCTURED_INPUT = {"client_name": "Acme Corp", "effective_date": "2025-01-15"}
+STRUCTURED_INPUT = {"client_name": "Acme Corp", "jurisdiction": "Contract Law"}
 
 
 def main():
