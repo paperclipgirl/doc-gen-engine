@@ -40,6 +40,18 @@ All 13 prompts in `backend/prompts/implementation_guidance/*.txt` now use `{{top
 
 ## Roadmap / next steps
 
-- **Graph nodes per section** — Model section dependencies as a graph; run sections in parallel where possible. Template/section model and runner changes.
+- **Graph nodes per section** — Implemented as minimal orchestration (see below). Future: run sections in parallel where dependencies allow; topological ordering from `depends_on`.
 - **Evaluation workflows** — Regression or quality checks on prompt outputs (fixed inputs, diff or score). For iterating on prompts or models.
 - **Section feedback persistence** — Done: GET/POST API, `runs/{run_id}/feedback.json`, frontend loads and submits via API.
+
+## Minimal orchestration node model (implemented)
+
+The backend has a small orchestration layer (`backend/src/orchestration/`) that provides a typed, graph-based execution model while preserving all current behavior.
+
+- **Current template generation is backed by graph definitions.** The registry (`graphs.get_graph_definition(template_id)`) loads the existing template and converts it to a `GraphDefinition`; each template section becomes a typed `NodeDefinition` (e.g. `section_generator`). No duplicate graph JSON; templates remain the source of truth.
+- **Sections are modeled as typed nodes.** The graph executor runs nodes in order, delegates prompt+LLM+write to the existing runner and prompt_loader, and records a `NodeRun` per node.
+- **Node execution is stored separately from node definition.** NodeRun metadata is stored per section in `runs/{run_id}/sections/{section_id}.meta.json` (Option A). Section content stays in `sections/{section_id}.md`; existing `read_section` and all APIs are unchanged. A shared execution context (`ExecutionContext`) carries user input and prior node outputs into each step.
+- **Single entry point.** `POST /runs` and section rerun go through the executor (`execute_run`, `execute_single_node`); the executor uses the existing runner, storage, and assembler. Run history, section rerun, prompt visibility (GET .../prompt), and assembled output behave as before.
+- **Execution-equivalence tests** (`tests/test_orchestration_equivalence.py`) assert that under mock LLM, the orchestration path produces the same run layout, section content, and assembled document as the legacy runner path; that rerun via the executor reassembles correctly; and that NodeRun metadata is written per section.
+
+This foundation prepares the system for evaluation workflows, component-aware graphs, dependency-aware execution (topological order), and future node types (evaluation, transform, validation, etc.) without changing the frontend or public API.

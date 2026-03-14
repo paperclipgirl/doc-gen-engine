@@ -394,6 +394,10 @@ function App() {
   const hldJurisdictionRequired = templateId === 'hld' && (selectedAreaForJurisdiction?.subs?.length ?? 0) > 0
   const hldJurisdictionMissing = hldJurisdictionRequired && !subArea.trim()
 
+  useEffect(() => {
+    if (templateId === 'hld' && hldJurisdictionRequired) setAdvancedConfigOpen(true)
+  }, [templateId, hldJurisdictionRequired])
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -703,6 +707,34 @@ function App() {
       <main className={`app-main ${isReviewMode ? 'app-main--review-mode' : ''}`}>
         <h1>Clio Operate Solution Factory</h1>
 
+        {!showCollapsedRunSummary && (
+          <div className="form-tabs" role="tablist" aria-label="Solution type">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={solutionType === 'reusable_accelerator'}
+              className={`form-tab ${solutionType === 'reusable_accelerator' ? 'form-tab--active' : ''}`}
+              onClick={() => {
+                setSolutionType('reusable_accelerator')
+              }}
+            >
+              Accelerator
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={solutionType === 'client_practice_solution'}
+              className={`form-tab ${solutionType === 'client_practice_solution' ? 'form-tab--active' : ''}`}
+              onClick={() => {
+                setSolutionType('client_practice_solution')
+                setComponent('')
+              }}
+            >
+              Client Solution
+            </button>
+          </div>
+        )}
+
         {showCollapsedRunSummary && run ? (
           <div className="run-context-panel">
             <div className="run-context-panel-body">
@@ -739,45 +771,20 @@ function App() {
             <h2 className="form-section-label">Solution Definition</h2>
 
             <div className="form-group">
-              <label htmlFor="topic" className="form-label">
-                What solution are you building? <span className="form-label-optional">(required for Implementation Guidance, Workflow Pattern, High-Level Design)</span>
-              </label>
+              <label htmlFor="topic" className="form-label">What solution are you building?</label>
               <input
                 id="topic"
                 type="text"
-                className="input"
+                className="input input--large"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 disabled={submitting || !!runId}
-                placeholder="e.g. Mortgage enforcement workflow for a regional law firm; Regulatory investigation management solution; Litigation case intake automation for a law firm"
+                placeholder="e.g. Mortgage enforcement workflow for a regional law firm; Corporate transaction management system; Litigation case intake automation"
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="solutionType" className="form-label">Solution Type</label>
-              <select
-                id="solutionType"
-                className="select"
-                value={solutionType}
-                onChange={(e) => {
-                  const v = e.target.value as 'reusable_accelerator' | 'client_practice_solution'
-                  setSolutionType(v)
-                  if (v === 'client_practice_solution') setComponent('')
-                }}
-                disabled={submitting || !!runId}
-              >
-                <option value="reusable_accelerator">Reusable Accelerator</option>
-                <option value="client_practice_solution">Client Practice Solution</option>
-              </select>
-              <p className="form-helper">
-                Reusable Accelerator → reusable framework for multiple law firms. Client Practice Solution → solution tailored for a specific law firm client.
-              </p>
-            </div>
-
-            <div className="form-group" ref={areaLawPickerContainerRef}>
-              <label htmlFor="area-law-picker" className="form-label">
-                Practice Area <span className="form-label-optional">(required)</span>
-              </label>
+            <div className="form-group form-group--tight" ref={areaLawPickerContainerRef}>
+              <label htmlFor="area-law-picker" className="form-label">Practice Area</label>
               <div className="component-picker">
                 <button
                   id="area-law-picker"
@@ -910,20 +917,24 @@ function App() {
               </div>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="template" className="form-label">Output Type</label>
-              <select
-                id="template"
-                className="select"
-                value={templateId}
-                onChange={(e) => setTemplateId(e.target.value)}
-                disabled={submitting || !!runId}
-              >
-                <option value="">Select output type</option>
+            <div className="form-group" role="radiogroup" aria-label="Output type">
+              <span className="form-label form-label--block">Output Type</span>
+              <div className="form-radios">
                 {templates.map((t) => (
-                  <option key={t.id} value={t.id}>{t.name}</option>
+                  <label key={t.id} className="form-radio-label">
+                    <input
+                      type="radio"
+                      name="outputType"
+                      className="form-radio"
+                      value={t.id}
+                      checked={templateId === t.id}
+                      onChange={() => setTemplateId(t.id)}
+                      disabled={submitting || !!runId}
+                    />
+                    <span className="form-radio-text">{t.name}</span>
+                  </label>
                 ))}
-              </select>
+              </div>
             </div>
 
             <div className="form-advanced-section">
@@ -938,100 +949,102 @@ function App() {
               </button>
               {advancedConfigOpen && (
                 <div className="form-advanced-fields">
-                  <div className={`form-group ${solutionType === 'client_practice_solution' ? 'form-group--deemphasized' : ''}`} ref={componentPickerContainerRef}>
-                    <label htmlFor="component-picker" className="form-label">Component <span className="form-label-optional">(optional)</span></label>
-                    <div className="component-picker">
-                      <button
-                        id="component-picker"
-                        type="button"
-                        className="component-picker-trigger"
-                        onClick={() => !(submitting || !!runId) && setComponentPickerOpen((o) => !o)}
-                        disabled={submitting || !!runId}
-                        aria-haspopup="listbox"
-                        aria-expanded={componentPickerOpen}
-                        aria-label={component || 'Select component'}
-                      >
-                        <span className="component-picker-trigger-text">{component || 'Select component'}</span>
-                        <span className="component-picker-trigger-icon" aria-hidden>▾</span>
-                      </button>
-                      {componentPickerOpen && (
-                        <div
-                          className="component-picker-popover"
-                          role="listbox"
-                          aria-label="Component list"
+                  {solutionType === 'reusable_accelerator' && (
+                    <div className="form-group" ref={componentPickerContainerRef}>
+                      <label htmlFor="component-picker" className="form-label">Component <span className="form-label-optional">(optional)</span></label>
+                      <div className="component-picker">
+                        <button
+                          id="component-picker"
+                          type="button"
+                          className="component-picker-trigger"
+                          onClick={() => !(submitting || !!runId) && setComponentPickerOpen((o) => !o)}
+                          disabled={submitting || !!runId}
+                          aria-haspopup="listbox"
+                          aria-expanded={componentPickerOpen}
+                          aria-label={component || 'Select component'}
                         >
-                          <div className="component-picker-search-wrap">
-                            <input
-                              type="text"
-                              className="component-picker-search"
-                              placeholder="Search components…"
-                              value={componentSearchQuery}
-                              onChange={(e) => setComponentSearchQuery(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Escape') {
-                                  setComponentPickerOpen(false)
-                                  e.preventDefault()
-                                }
-                              }}
-                              autoFocus
-                            />
+                          <span className="component-picker-trigger-text">{component || 'Select component'}</span>
+                          <span className="component-picker-trigger-icon" aria-hidden>▾</span>
+                        </button>
+                        {componentPickerOpen && (
+                          <div
+                            className="component-picker-popover"
+                            role="listbox"
+                            aria-label="Component list"
+                          >
+                            <div className="component-picker-search-wrap">
+                              <input
+                                type="text"
+                                className="component-picker-search"
+                                placeholder="Search components…"
+                                value={componentSearchQuery}
+                                onChange={(e) => setComponentSearchQuery(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Escape') {
+                                    setComponentPickerOpen(false)
+                                    e.preventDefault()
+                                  }
+                                }}
+                                autoFocus
+                              />
+                            </div>
+                            <div className="component-picker-list">
+                              {COMPONENT_GROUPS.map((group) => {
+                                const q = componentSearchQuery.trim().toLowerCase()
+                                const filtered = q
+                                  ? group.components.filter((name) => name.toLowerCase().includes(q))
+                                  : group.components
+                                if (filtered.length === 0) return null
+                                return (
+                                  <div key={group.domain} className="component-picker-group">
+                                    <div className="component-picker-group-label">{group.domain}</div>
+                                    <ul className="component-picker-items" role="group" aria-label={group.domain}>
+                                      {filtered.map((name) => {
+                                        const isSelected = component === name
+                                        const matchStart = q ? name.toLowerCase().indexOf(q) : -1
+                                        const label =
+                                          matchStart >= 0 && q
+                                            ? [
+                                                name.slice(0, matchStart),
+                                                name.slice(matchStart, matchStart + q.length),
+                                                name.slice(matchStart + q.length),
+                                              ]
+                                            : [name]
+                                        return (
+                                          <li key={name} role="option" aria-selected={isSelected}>
+                                            <button
+                                              type="button"
+                                              className={`component-picker-item ${isSelected ? 'is-selected' : ''}`}
+                                              onClick={() => {
+                                                setComponent(name)
+                                                setComponentPickerOpen(false)
+                                                setComponentSearchQuery('')
+                                              }}
+                                            >
+                                              {label.length === 3 ? (
+                                                <>
+                                                  {label[0]}
+                                                  <mark className="component-picker-match">{label[1]}</mark>
+                                                  {label[2]}
+                                                </>
+                                              ) : (
+                                                name
+                                              )}
+                                            </button>
+                                          </li>
+                                        )
+                                      })}
+                                    </ul>
+                                  </div>
+                                )
+                              })}
+                            </div>
                           </div>
-                          <div className="component-picker-list">
-                            {COMPONENT_GROUPS.map((group) => {
-                              const q = componentSearchQuery.trim().toLowerCase()
-                              const filtered = q
-                                ? group.components.filter((name) => name.toLowerCase().includes(q))
-                                : group.components
-                              if (filtered.length === 0) return null
-                              return (
-                                <div key={group.domain} className="component-picker-group">
-                                  <div className="component-picker-group-label">{group.domain}</div>
-                                  <ul className="component-picker-items" role="group" aria-label={group.domain}>
-                                    {filtered.map((name) => {
-                                      const isSelected = component === name
-                                      const matchStart = q ? name.toLowerCase().indexOf(q) : -1
-                                      const label =
-                                        matchStart >= 0 && q
-                                          ? [
-                                              name.slice(0, matchStart),
-                                              name.slice(matchStart, matchStart + q.length),
-                                              name.slice(matchStart + q.length),
-                                            ]
-                                          : [name]
-                                      return (
-                                        <li key={name} role="option" aria-selected={isSelected}>
-                                          <button
-                                            type="button"
-                                            className={`component-picker-item ${isSelected ? 'is-selected' : ''}`}
-                                            onClick={() => {
-                                              setComponent(name)
-                                              setComponentPickerOpen(false)
-                                              setComponentSearchQuery('')
-                                            }}
-                                          >
-                                            {label.length === 3 ? (
-                                              <>
-                                                {label[0]}
-                                                <mark className="component-picker-match">{label[1]}</mark>
-                                                {label[2]}
-                                              </>
-                                            ) : (
-                                              name
-                                            )}
-                                          </button>
-                                        </li>
-                                      )
-                                    })}
-                                  </ul>
-                                </div>
-                              )
-                            })}
-                          </div>
-                        </div>
-                      )}
+                        )}
+                      </div>
+                      <p className="form-helper">Select a reusable component to generate.</p>
                     </div>
-                    <p className="form-helper">Select a component when building a reusable accelerator.</p>
-                  </div>
+                  )}
 
                   {(() => {
                     const selectedArea = AREA_OF_LAW.find((x) => x.area === areaOfLaw)
@@ -1068,14 +1081,18 @@ function App() {
                     <label htmlFor="context" className="form-label">Additional Context <span className="form-label-optional">(optional)</span></label>
                     <textarea
                       id="context"
-                      className="textarea"
+                      className="textarea textarea--large"
                       value={context}
                       onChange={(e) => setContext(e.target.value)}
                       disabled={submitting || !!runId}
-                      placeholder="e.g. Client is a mid-sized law firm implementing Clio Operate for litigation matters; Workflow must support cross-border regulatory investigations for a law firm client; Firm needs structured intake and task management for corporate transactions"
+                      placeholder={solutionType === 'client_practice_solution' ? 'e.g. Mid-sized firm, litigation focus; Cross-border regulatory work; Corporate transactions intake' : 'e.g. Client is a mid-sized law firm implementing Clio Operate for litigation matters; Workflow must support cross-border regulatory investigations'}
                       rows={3}
                     />
-                    <p className="form-helper">Provide additional context about the law firm, client matter types, operational requirements, or constraints.</p>
+                    <p className="form-helper">
+                      {solutionType === 'client_practice_solution'
+                        ? 'Describe the client, firm constraints, or matter types.'
+                        : 'Provide additional context about the law firm, client matter types, operational requirements, or constraints.'}
+                    </p>
                   </div>
                 </div>
               )}

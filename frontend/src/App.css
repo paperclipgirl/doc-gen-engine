@@ -304,12 +304,80 @@
   font-weight: var(--fw-normal);
 }
 
+/* Solution type tabs (above form) */
+.form-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: var(--space-2);
+  border-bottom: var(--border-width) solid var(--border);
+}
+
+.form-tab {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: var(--space-1) var(--space-2);
+  margin-bottom: -1px;
+  cursor: pointer;
+  transition: color 0.12s ease, border-color 0.12s ease;
+}
+
+.form-tab:hover {
+  color: var(--text-primary);
+}
+
+.form-tab--active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
 .form-section-label {
   font-family: var(--font-ui);
   font-size: var(--text-base);
   font-weight: var(--fw-semibold);
   color: var(--text-primary);
   margin: 0 0 var(--space-2);
+  line-height: var(--leading-snug);
+}
+
+.form-label--block {
+  display: block;
+  margin-bottom: var(--space-1);
+}
+
+.form-group--tight {
+  margin-bottom: var(--space-2);
+}
+
+/* Output type radio group */
+.form-radios {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.form-radio-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--fw-normal);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.form-radio {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--primary);
+}
+
+.form-radio-text {
   line-height: var(--leading-snug);
 }
 
@@ -417,6 +485,18 @@
   min-height: 72px;
   padding: var(--space-1) var(--space-2);
   resize: vertical;
+}
+
+.input--large {
+  max-width: 40rem;
+  height: 72px;
+  padding: var(--space-2);
+}
+
+.textarea--large {
+  max-width: 40rem;
+  min-height: 144px;
+  padding: var(--space-2);
 }
 
 .select {

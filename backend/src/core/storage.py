@@ -174,6 +174,26 @@ def write_section(run_id: str, section_id: str, content: str, updated_at: Option
     path.write_text(content, encoding="utf-8")
 
 
+def write_node_run_meta(run_id: str, section_id: str, data: dict) -> None:
+    """Write node run metadata to runs/{run_id}/sections/{section_id}.meta.json (Option A)."""
+    import json
+    path = _RUNS_DIR / run_id / "sections" / f"{section_id}.meta.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+
+
+def read_node_run_meta(run_id: str, section_id: str) -> Optional[dict]:
+    """Read node run metadata from runs/{run_id}/sections/{section_id}.meta.json. Returns None if missing."""
+    import json
+    path = _RUNS_DIR / run_id / "sections" / f"{section_id}.meta.json"
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None
+
+
 def read_section(run_id: str, section_id: str) -> Optional[SectionOutput]:
     """Read section output from runs/{run_id}/sections/{section_id}.md."""
     path = _RUNS_DIR / run_id / "sections" / f"{section_id}.md"
