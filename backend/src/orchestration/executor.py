@@ -18,6 +18,7 @@ def execute_run(
     structured_input: dict,
     model: Optional[str] = None,
     mock: bool = False,
+    vector_store_id: Optional[str] = None,
 ) -> str:
     """
     Execute the graph for the given template_id: create run, run each section node in order,
@@ -63,6 +64,7 @@ def execute_run(
                     model=model,
                     mock=mock,
                     previous_sections=prompt_input.get("previous_sections", ""),
+                    vector_store_id=vector_store_id,
                 )
                 previous_parts.append(content)
                 out = storage.read_section(run_id, node.id)
@@ -116,6 +118,7 @@ def execute_single_node(
     section_id: str,
     model: Optional[str] = None,
     mock: bool = False,
+    vector_store_id: Optional[str] = None,
 ) -> str:
     """
     Rerun a single section node and reassemble. Loads run and template, builds context and
@@ -150,6 +153,7 @@ def execute_single_node(
             model=model,
             mock=mock,
             previous_sections=previous_sections_str,
+            vector_store_id=vector_store_id,
         )
         finished_at = datetime.utcnow()
         node_run = NodeRun(

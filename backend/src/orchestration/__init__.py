@@ -2,7 +2,7 @@
 Minimal orchestration layer for document generation.
 Graph-based execution with typed nodes; compatible with existing template/section pipeline.
 """
-from .executor import GraphExecutor
+from .executor import execute_run, execute_single_node
 from .graphs import get_graph_definition
 from .models import (
     ExecutionContext,
@@ -14,8 +14,9 @@ from .models import (
 
 __all__ = [
     "ExecutionContext",
+    "execute_run",
+    "execute_single_node",
     "GraphDefinition",
-    "GraphExecutor",
     "GraphRun",
     "NodeDefinition",
     "NodeRun",

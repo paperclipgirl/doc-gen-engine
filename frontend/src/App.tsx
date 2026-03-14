@@ -253,6 +253,7 @@ function App() {
   const [sectionEditMode, setSectionEditMode] = useState<string | null>(null)
   const [editingContent, setEditingContent] = useState('')
   const [formExpanded, setFormExpanded] = useState(true)
+  const [generationMode, setGenerationMode] = useState<'mock' | 'real'>('mock')
   const previewEditableRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -438,6 +439,7 @@ function App() {
     createRun({
       template_id: templateId,
       structured_input,
+      generation_mode: generationMode,
     })
       .then(({ run_id }) => {
         setRunId(run_id)
@@ -471,6 +473,7 @@ function App() {
     setTopic('')
     setContext('')
     setClientName('')
+    setGenerationMode('mock')
     setError(null)
   }
 
@@ -1108,6 +1111,40 @@ function App() {
                 />
               </div>
             )}
+            <div className="form-group form-group--tight" style={{ marginBottom: 'var(--space-2)' }}>
+              <span className="form-label form-label--block" style={{ marginBottom: 'var(--space-1)' }}>Generation mode</span>
+              <div className="form-radios" role="radiogroup" aria-label="Generation mode">
+                <label className="form-radio-label">
+                  <input
+                    type="radio"
+                    name="generationMode"
+                    className="form-radio"
+                    value="mock"
+                    checked={generationMode === 'mock'}
+                    onChange={() => setGenerationMode('mock')}
+                    disabled={submitting || !!runId}
+                  />
+                  <span className="form-radio-text">Fast draft (no API)</span>
+                </label>
+                <label className="form-radio-label">
+                  <input
+                    type="radio"
+                    name="generationMode"
+                    className="form-radio"
+                    value="real"
+                    checked={generationMode === 'real'}
+                    onChange={() => setGenerationMode('real')}
+                    disabled={submitting || !!runId}
+                  />
+                  <span className="form-radio-text">Real run (uses credits)</span>
+                </label>
+              </div>
+              {generationMode === 'real' && (
+                <p className="form-helper" style={{ marginTop: 'var(--space-1)', marginBottom: 0 }}>
+                  Uses real API credits · Knowledge retrieval enabled
+                </p>
+              )}
+            </div>
             <div className="form-actions">
               <button
                 type="submit"

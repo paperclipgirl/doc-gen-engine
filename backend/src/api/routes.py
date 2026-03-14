@@ -9,6 +9,7 @@ so that GET /api/templates and GET /api/runs do not load executor/graph code and
 import logging
 import os
 import uuid
+from typing import Optional, Tuple
 
 from fastapi import APIRouter, HTTPException
 
@@ -17,6 +18,39 @@ from src.core import assembler, prompt_loader, runner, storage
 
 router = APIRouter(prefix="/api", tags=["api"])
 logger = logging.getLogger(__name__)
+
+
+def _get_vector_store_id() -> str:
+    """Vector store ID for retrieval during real generation. Empty if not configured."""
+    return os.environ.get("OPENAI_VECTOR_STORE_ID", "").strip()
+
+
+def _resolve_generation_mode(
+    requested_mode: Optional[str],
+) -> Tuple[bool, Optional[str]]:
+    """
+    Resolve (use_mock, vector_store_id for real mode).
+    - requested_mode: 'mock' | 'real' from request (default 'mock').
+    - use_mock: True to use placeholder output.
+    - vector_store_id: non-empty only when real mode and configured; None or empty to skip retrieval.
+    """
+    mode = (requested_mode or "mock").strip().lower()
+    use_mock_llm_env = os.environ.get("USE_MOCK_LLM", "").strip().lower() in ("1", "true", "yes")
+    has_key = bool(os.environ.get("OPENAI_API_KEY", "").strip())
+    vector_store_id = _get_vector_store_id() or None
+
+    if mode == "real":
+        if use_mock_llm_env:
+            logger.info("generation_mode: requested=real, actual=mock (USE_MOCK_LLM=1)")
+            return True, None
+        if not has_key:
+            logger.warning("generation_mode: requested=real, actual=mock (OPENAI_API_KEY not set)")
+            return True, None
+        logger.info("generation_mode: requested=real, actual=real; vector_store_attached=%s", bool(vector_store_id))
+        return False, vector_store_id if vector_store_id else None
+    # mock requested or unknown
+    logger.info("generation_mode: requested=%s, actual=mock", mode or "mock")
+    return True, None
 
 
 def _use_mock_llm() -> bool:
@@ -84,15 +118,23 @@ def api_get_template(template_id: str):
 @router.post("/runs", status_code=201)
 def api_create_run(body: GenerationRequest):
     """
-    Create a run and run the full pipeline (run_all_sections).
+    Create a run and run the full pipeline.
+    Request can specify generation_mode: 'mock' (default) or 'real'.
     Returns 201 { run_id }. On pipeline failure returns 500 with run.error.
     """
     from src.orchestration.executor import execute_run
 
     run_id = str(uuid.uuid4())
     structured_input = body.structured_input if body.structured_input is not None else {}
+    use_mock, vector_store_id = _resolve_generation_mode(body.generation_mode)
     try:
-        execute_run(run_id, body.template_id, structured_input, mock=_use_mock_llm())
+        execute_run(
+            run_id,
+            body.template_id,
+            structured_input,
+            mock=use_mock,
+            vector_store_id=vector_store_id,
+        )
     except ValueError as e:
         if "Template not found" in str(e):
             raise HTTPException(status_code=404, detail=str(e))
@@ -157,10 +199,11 @@ def api_rerun_section(run_id: str, section_id: str):
     if section_id not in run.section_ids:
         raise HTTPException(status_code=400, detail="Section not in run")
 
+    use_mock, vector_store_id = _resolve_generation_mode(None)
     try:
         from src.orchestration.executor import execute_single_node
 
-        execute_single_node(run_id, section_id, mock=_use_mock_llm())
+        execute_single_node(run_id, section_id, mock=use_mock, vector_store_id=vector_store_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

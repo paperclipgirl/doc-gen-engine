@@ -104,6 +104,34 @@ def test_api_create_run():
     assert run_data["status"] == "completed"
 
 
+def test_api_create_run_with_generation_mode_mock():
+    """Request with generation_mode=mock uses mock path and completes."""
+    r = client.post(
+        "/api/runs",
+        json={
+            "template_id": "implementation_guidance",
+            "structured_input": {"topic": "T", "jurisdiction": "J", "context": ""},
+            "generation_mode": "mock",
+        },
+    )
+    assert r.status_code == 201
+    assert "run_id" in r.json()
+
+
+def test_api_create_run_with_generation_mode_real_falls_back_to_mock():
+    """Request with generation_mode=real but USE_MOCK_LLM=1: backend falls back to mock, does not crash."""
+    r = client.post(
+        "/api/runs",
+        json={
+            "template_id": "implementation_guidance",
+            "structured_input": {"topic": "T", "jurisdiction": "J", "context": ""},
+            "generation_mode": "real",
+        },
+    )
+    assert r.status_code == 201
+    assert "run_id" in r.json()
+
+
 def test_api_list_runs():
     r = client.get("/api/runs")
     assert r.status_code == 200

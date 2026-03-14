@@ -5,6 +5,12 @@ Run from backend directory: uvicorn src.main:app --reload
 import logging
 import os
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 from fastapi import FastAPI
 
 # So GET /api/templates etc. diagnostic logs are visible when running uvicorn

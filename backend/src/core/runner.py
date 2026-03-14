@@ -1,12 +1,15 @@
 """
 Section D: Sequential multi-section runner. Runs each template section via one model call, saves output, then assembly.
 """
+import logging
 import os
 from datetime import datetime
 from typing import Optional
 
 from . import assembler, prompt_loader, storage
 from .models import Template
+
+logger = logging.getLogger(__name__)
 
 # Model from env; default for prototype
 DEFAULT_MODEL = "gpt-4o-mini"
@@ -16,17 +19,32 @@ def _get_model() -> str:
     return os.environ.get("OPENAI_MODEL", DEFAULT_MODEL)
 
 
-def _call_llm(prompt_text: str, model: str) -> str:
-    """Call OpenAI chat completion; returns content. Raises on API error."""
+def _call_llm(
+    prompt_text: str,
+    model: str,
+    vector_store_id: Optional[str] = None,
+) -> str:
+    """Call OpenAI chat completion; returns content. Raises on API error.
+    When vector_store_id is set, attaches file_search so the model can retrieve from that store.
+    """
     try:
         from openai import OpenAI
     except ImportError:
         raise RuntimeError("openai package required for runner; pip install openai")
     client = OpenAI()
-    response = client.chat.completions.create(
-        model=model,
-        messages=[{"role": "user", "content": prompt_text}],
-    )
+    messages: list[dict] = [{"role": "user", "content": prompt_text}]
+    kwargs: dict = {"model": model, "messages": messages}
+    if vector_store_id:
+        kwargs["tools"] = [{"type": "file_search", "vector_store_ids": [vector_store_id]}]
+    try:
+        response = client.chat.completions.create(**kwargs)
+    except Exception as e:
+        if vector_store_id and "tool" in str(e).lower():
+            logger.warning("file_search tool not supported for this endpoint, retrying without retrieval: %s", e)
+            kwargs.pop("tools", None)
+            response = client.chat.completions.create(**kwargs)
+        else:
+            raise
     choice = response.choices and response.choices[0]
     if not choice or not choice.message:
         raise RuntimeError("Empty response from model")
@@ -41,6 +59,7 @@ def run_section(
     model: Optional[str] = None,
     mock: bool = False,
     previous_sections: Optional[str] = None,
+    vector_store_id: Optional[str] = None,
 ) -> str:
     """
     Load prompt for section, substitute structured_input + previous_sections, call model, save to sections/{section_id}.md.
@@ -60,7 +79,11 @@ def run_section(
             len(prompt_text),
         )
     else:
-        content = _call_llm(prompt_text, model or _get_model())
+        content = _call_llm(
+            prompt_text,
+            model or _get_model(),
+            vector_store_id=vector_store_id,
+        )
 
     storage.write_section(run_id, section_id, content)
     run = storage.get_run(run_id)
