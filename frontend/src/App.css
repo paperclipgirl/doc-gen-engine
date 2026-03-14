@@ -388,6 +388,21 @@
   line-height: var(--leading-normal);
 }
 
+.form-helper--standalone {
+  margin-top: 0;
+  padding: var(--space-1) 0;
+}
+
+.form-helper--diagnostic {
+  color: var(--text-secondary);
+  font-weight: var(--fw-medium);
+}
+
+.form-helper--error {
+  color: var(--danger);
+  font-weight: var(--fw-medium);
+}
+
 /* Advanced configuration collapsible */
 .form-advanced-section {
   margin-top: var(--space-2);

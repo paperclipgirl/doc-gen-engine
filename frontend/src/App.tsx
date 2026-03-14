@@ -214,6 +214,8 @@ function formatDate(iso: string): string {
 
 function App() {
   const [templates, setTemplates] = useState<TemplateSummary[]>([])
+  const [templatesLoading, setTemplatesLoading] = useState(true)
+  const [templatesError, setTemplatesError] = useState<string | null>(null)
   const [solutionType, setSolutionType] = useState<'reusable_accelerator' | 'client_practice_solution'>('reusable_accelerator')
   const [advancedConfigOpen, setAdvancedConfigOpen] = useState(false)
   const [templateId, setTemplateId] = useState<string>('')
@@ -259,11 +261,29 @@ function App() {
     return () => clearTimeout(t)
   }, [toast])
 
-  // Load templates on mount
+  // Load templates once on mount (GET /api/templates)
   useEffect(() => {
+    let cancelled = false
+    console.log('[templates] load start')
+    setTemplatesLoading(true)
+    setTemplatesError(null)
     listTemplates()
-      .then(setTemplates)
-      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load templates'))
+      .then((list) => {
+        if (cancelled) return
+        const arr = Array.isArray(list) ? list : []
+        console.log('[templates] load resolved', arr.length, 'templates')
+        setTemplates(arr)
+        setTemplatesLoading(false)
+      })
+      .catch((e) => {
+        if (cancelled) return
+        const msg = e instanceof Error ? e.message : 'Failed to load templates'
+        console.error('[templates] load error', e)
+        setTemplatesError(msg)
+        setError(msg)
+        setTemplatesLoading(false)
+      })
+    return () => { cancelled = true }
   }, [])
 
   // Set default template when list loads
@@ -920,20 +940,34 @@ function App() {
             <div className="form-group" role="radiogroup" aria-label="Output type">
               <span className="form-label form-label--block">Output Type</span>
               <div className="form-radios">
-                {templates.map((t) => (
-                  <label key={t.id} className="form-radio-label">
-                    <input
-                      type="radio"
-                      name="outputType"
-                      className="form-radio"
-                      value={t.id}
-                      checked={templateId === t.id}
-                      onChange={() => setTemplateId(t.id)}
-                      disabled={submitting || !!runId}
-                    />
-                    <span className="form-radio-text">{t.name}</span>
-                  </label>
-                ))}
+                {templatesLoading ? (
+                  <p className="form-helper form-helper--standalone form-helper--diagnostic" role="status">
+                    Loading output types…
+                  </p>
+                ) : templatesError ? (
+                  <p className="form-helper form-helper--standalone form-helper--error" role="alert">
+                    Failed to load output types: {templatesError}
+                  </p>
+                ) : templates.length > 0 ? (
+                  templates.map((t) => (
+                    <label key={t.id} className="form-radio-label">
+                      <input
+                        type="radio"
+                        name="outputType"
+                        className="form-radio"
+                        value={t.id}
+                        checked={templateId === t.id}
+                        onChange={() => setTemplateId(t.id)}
+                        disabled={submitting || !!runId}
+                      />
+                      <span className="form-radio-text">{t.name}</span>
+                    </label>
+                  ))
+                ) : (
+                  <p className="form-helper form-helper--standalone" role="status">
+                    No output types available. Check template configuration.
+                  </p>
+                )}
               </div>
             </div>
 

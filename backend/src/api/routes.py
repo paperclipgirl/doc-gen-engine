@@ -2,7 +2,11 @@
 API routes. Section E: full surface per plan (templates, runs, rerun, versions).
 Uses existing storage and runner; no frontend changes.
 Mock mode: when OPENAI_API_KEY is not set, or USE_MOCK_LLM=1, pipeline uses placeholder output (no API key required).
+
+Orchestration (execute_run, execute_single_node) is imported lazily inside the routes that need it
+so that GET /api/templates and GET /api/runs do not load executor/graph code and cannot hang on it.
 """
+import logging
 import os
 import uuid
 
@@ -10,9 +14,9 @@ from fastapi import APIRouter, HTTPException
 
 from src.core.models import GenerationRequest
 from src.core import assembler, prompt_loader, runner, storage
-from src.orchestration.executor import execute_run, execute_single_node
 
 router = APIRouter(prefix="/api", tags=["api"])
+logger = logging.getLogger(__name__)
 
 
 def _use_mock_llm() -> bool:
@@ -38,9 +42,14 @@ def _snapshot_to_json(snap):
 
 @router.get("/templates")
 def api_list_templates():
-    """List all templates. Returns 200 with { templates: [ { id, name, description, section_count } ] }."""
+    """List all templates. Returns 200 with { templates: [ { id, name, description, section_count } ] }.
+    Always returns a dict with a 'templates' key that is a list (never null or another shape)."""
+    logger.info("GET /api/templates: entry")
     templates = storage.list_templates()
-    return {
+    logger.info("GET /api/templates: storage.list_templates() returned %d templates", len(templates))
+    if not isinstance(templates, list):
+        templates = []
+    payload = {
         "templates": [
             {
                 "id": t.id,
@@ -51,6 +60,8 @@ def api_list_templates():
             for t in templates
         ]
     }
+    logger.info("GET /api/templates: responding with payload length %d", len(str(payload)))
+    return payload
 
 
 @router.get("/templates/{template_id}")
@@ -76,14 +87,18 @@ def api_create_run(body: GenerationRequest):
     Create a run and run the full pipeline (run_all_sections).
     Returns 201 { run_id }. On pipeline failure returns 500 with run.error.
     """
+    from src.orchestration.executor import execute_run
+
     run_id = str(uuid.uuid4())
+    structured_input = body.structured_input if body.structured_input is not None else {}
     try:
-        execute_run(run_id, body.template_id, body.structured_input, mock=_use_mock_llm())
+        execute_run(run_id, body.template_id, structured_input, mock=_use_mock_llm())
     except ValueError as e:
         if "Template not found" in str(e):
             raise HTTPException(status_code=404, detail=str(e))
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        logger.exception("execute_run failed: %s", e)
         run = storage.get_run(run_id)
         detail = run.error if run and run.error else str(e)
         raise HTTPException(status_code=500, detail=detail)
@@ -143,6 +158,8 @@ def api_rerun_section(run_id: str, section_id: str):
         raise HTTPException(status_code=400, detail="Section not in run")
 
     try:
+        from src.orchestration.executor import execute_single_node
+
         execute_single_node(run_id, section_id, mock=_use_mock_llm())
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

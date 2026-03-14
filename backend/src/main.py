@@ -2,9 +2,13 @@
 FastAPI app: CORS enabled, API routes mounted.
 Run from backend directory: uvicorn src.main:app --reload
 """
+import logging
 import os
 
 from fastapi import FastAPI
+
+# So GET /api/templates etc. diagnostic logs are visible when running uvicorn
+logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s %(message)s")
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.routes import router as api_router

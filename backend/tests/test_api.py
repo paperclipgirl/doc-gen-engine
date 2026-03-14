@@ -1,4 +1,7 @@
-"""Tests for API routes (templates, runs, create run with mock LLM)."""
+"""Tests for API routes (templates, runs, create run with mock LLM).
+Includes regression tests to ensure template listing and run listing work
+independently of orchestration (no run creation required).
+"""
 import os
 
 import pytest
@@ -11,6 +14,9 @@ os.environ["USE_MOCK_LLM"] = "1"
 
 client = TestClient(app)
 
+# Known template IDs from backend/templates/*.json (at least these are expected)
+EXPECTED_TEMPLATE_IDS = {"implementation_guidance", "workflow_pattern", "hld"}
+
 
 def test_root():
     r = client.get("/")
@@ -21,12 +27,49 @@ def test_root():
 
 
 def test_api_list_templates():
+    """GET /api/templates returns 200 and a non-empty templates list with expected shape."""
     r = client.get("/api/templates")
     assert r.status_code == 200
     data = r.json()
     assert "templates" in data
+    assert isinstance(data["templates"], list), "response must have a list under 'templates'"
+    assert len(data["templates"]) >= 1, "template list must be non-empty"
+    ids = {t["id"] for t in data["templates"]}
+    for tid in EXPECTED_TEMPLATE_IDS:
+        assert tid in ids, f"expected template id {tid!r} in response"
+    for t in data["templates"]:
+        assert "id" in t and "name" in t
+        assert "section_count" in t
+
+
+def test_api_list_templates_response_shape():
+    """Response is strictly { 'templates': [...] } and never null or other shape."""
+    r = client.get("/api/templates")
+    assert r.status_code == 200
+    data = r.json()
+    assert isinstance(data, dict)
+    assert list(data.keys()) == ["templates"]
+    assert data["templates"] is not None
     assert isinstance(data["templates"], list)
-    assert len(data["templates"]) >= 1
+
+
+def test_api_list_templates_without_orchestration():
+    """GET /api/templates succeeds in isolation; no run created, no executor invoked.
+    Regression: template listing must not depend on orchestration execution paths."""
+    r = client.get("/api/templates")
+    assert r.status_code == 200
+    data = r.json()
+    assert "templates" in data and isinstance(data["templates"], list)
+
+
+def test_api_list_runs_without_create():
+    """GET /api/runs returns 200 and valid runs array without creating a run first.
+    Protects sidebar-loading path from orchestration side effects."""
+    r = client.get("/api/runs")
+    assert r.status_code == 200
+    data = r.json()
+    assert "runs" in data
+    assert isinstance(data["runs"], list)
 
 
 def test_api_get_template():
@@ -67,6 +110,8 @@ def test_api_list_runs():
     data = r.json()
     assert "runs" in data
     assert isinstance(data["runs"], list)
+    # Response shape is always { "runs": [...] }
+    assert data["runs"] is not None
 
 
 def test_api_get_run_404():

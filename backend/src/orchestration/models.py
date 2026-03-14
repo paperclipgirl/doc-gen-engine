@@ -101,13 +101,19 @@ class ExecutionContext(BaseModel):
         return out
 
     @classmethod
-    def from_structured_input(cls, structured_input: dict[str, Any]) -> "ExecutionContext":
+    def from_structured_input(cls, structured_input: Optional[dict[str, Any]] = None) -> "ExecutionContext":
         """Build context from API structured_input (topic, jurisdiction, context, component, etc.)."""
+        d = structured_input if isinstance(structured_input, dict) else {}
+        def _str(v: Any) -> str:
+            return str(v) if v is not None else ""
+        def _opt(v: Any) -> Optional[str]:
+            s = _str(v).strip() if v is not None else ""
+            return s or None
         return cls(
-            topic=structured_input.get("topic", ""),
-            jurisdiction=structured_input.get("jurisdiction", ""),
-            context=structured_input.get("context", ""),
-            component=structured_input.get("component") or None,
-            solution_type=structured_input.get("solution_type") or None,
-            client_name=structured_input.get("client_name") or None,
+            topic=_str(d.get("topic")),
+            jurisdiction=_str(d.get("jurisdiction")),
+            context=_str(d.get("context")),
+            component=_opt(d.get("component")),
+            solution_type=_opt(d.get("solution_type")),
+            client_name=_opt(d.get("client_name")),
         )

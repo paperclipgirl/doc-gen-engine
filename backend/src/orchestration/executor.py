@@ -53,6 +53,7 @@ def execute_run(
             started_at = datetime.utcnow()
             prev_ids = [graph.nodes[j].id for j in range(i) if graph.nodes[j].node_type == NODE_TYPE_SECTION_GENERATOR]
             prompt_input = ctx.to_prompt_dict(node_ids, prev_ids)
+            node_run: Optional[NodeRun] = None
             try:
                 content = runner.run_section(
                     run_id,
@@ -86,11 +87,12 @@ def execute_run(
                 )
                 raise
             finally:
-                storage.write_node_run_meta(
-                    run_id,
-                    node.id,
-                    node_run.model_dump(mode="json"),
-                )
+                if node_run is not None:
+                    storage.write_node_run_meta(
+                        run_id,
+                        node.id,
+                        node_run.model_dump(mode="json"),
+                    )
 
         content = assembler.assemble_document(run_id)
         run = storage.get_run(run_id)

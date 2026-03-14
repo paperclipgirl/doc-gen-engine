@@ -16,7 +16,8 @@ export async function listTemplates(): Promise<TemplateSummary[]> {
   const res = await fetch(`${API}/templates`)
   if (!res.ok) throw new Error(await res.text())
   const data = await res.json()
-  return data.templates ?? []
+  const list = data?.templates
+  return Array.isArray(list) ? list : []
 }
 
 export async function getTemplate(templateId: string) {

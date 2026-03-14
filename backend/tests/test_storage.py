@@ -16,11 +16,31 @@ from src.core.storage import (
 
 TEST_RUN_ID = "pytest-storage-run"
 
+# Known template IDs from backend/templates/*.json
+EXPECTED_TEMPLATE_IDS = {"implementation_guidance", "workflow_pattern", "hld"}
+
 
 def test_list_templates():
     templates = list_templates()
     assert isinstance(templates, list)
     assert len(templates) >= 1
+
+
+def test_list_templates_returns_expected_shape_and_ids():
+    """storage.list_templates() returns a list of templates with id, name, sections.
+    Narrows failures quickly if /api/templates breaks."""
+    templates = list_templates()
+    assert isinstance(templates, list)
+    assert len(templates) >= 1
+    ids = set()
+    for t in templates:
+        assert hasattr(t, "id") and hasattr(t, "name") and hasattr(t, "sections")
+        assert isinstance(t.id, str)
+        assert isinstance(t.name, str)
+        assert isinstance(t.sections, list)
+        ids.add(t.id)
+    for tid in EXPECTED_TEMPLATE_IDS:
+        assert tid in ids, f"expected template id {tid!r} from list_templates()"
 
 
 def test_get_template():
