@@ -2,7 +2,7 @@
  * Section F+G: Generation form, template select, run status, section outputs, assembled doc;
  * Section G: rerun section, run history, open run, version history.
  */
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   createRun,
   getRun,
@@ -170,6 +170,7 @@ function App() {
   const [suggestedUpdate, setSuggestedUpdate] = useState<Record<string, string>>({})
   const [sectionEditMode, setSectionEditMode] = useState<string | null>(null)
   const [editingContent, setEditingContent] = useState('')
+  const previewEditableRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!toast) return
@@ -449,6 +450,29 @@ function App() {
             ? 'completed'
             : 'completed'
 
+  const getSectionContentForPreview = (sectionId: string) =>
+    currentContent[sectionContentKey(sectionId)] ??
+    run?.sections?.find((s) => s.section_id === sectionId)?.content ??
+    ''
+
+  const updateSectionContentFromPreview = (sectionId: string, value: string) => {
+    const k = sectionContentKey(sectionId)
+    setCurrentContent((prev) => ({ ...prev, [k]: value }))
+  }
+
+  const resizePreviewSectionTextareas = useCallback(() => {
+    previewEditableRef.current?.querySelectorAll<HTMLTextAreaElement>('.doc-preview-section-input').forEach((ta) => {
+      ta.style.height = 'auto'
+      ta.style.height = `${ta.scrollHeight}px`
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!runId || !run?.section_ids?.length) return
+    const timer = setTimeout(resizePreviewSectionTextareas, 0)
+    return () => clearTimeout(timer)
+  }, [runId, run?.section_ids, currentContent, resizePreviewSectionTextareas])
+
   return (
     <div className="app-root">
       {/* Left: run history only */}
@@ -630,10 +654,31 @@ function App() {
               {run.error}
             </div>
           )}
-          {docPreviewState === 'completed' && (
-            run?.assembled
-              ? <div className="doc-preview-body">{run.assembled.content}</div>
-              : <div className="doc-preview-empty">No assembled document.</div>
+          {docPreviewState === 'completed' && run && (
+            run.section_ids && run.section_ids.length > 0 ? (
+              <div ref={previewEditableRef} className="doc-preview-body doc-preview-editable">
+                {run.section_ids.map((sectionId, idx) => (
+                  <div key={sectionId} className="doc-preview-section-block">
+                    {idx > 0 && <div className="doc-preview-separator">---</div>}
+                    <textarea
+                      className="doc-preview-section-input"
+                      value={getSectionContentForPreview(sectionId)}
+                      onChange={(e) => {
+                        const ta = e.target
+                        updateSectionContentFromPreview(sectionId, ta.value)
+                        ta.style.height = 'auto'
+                        ta.style.height = `${ta.scrollHeight}px`
+                      }}
+                      aria-label={`Section: ${sectionId}`}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : run.assembled ? (
+              <div className="doc-preview-body">{run.assembled.content}</div>
+            ) : (
+              <div className="doc-preview-empty">No assembled document.</div>
+            )
           )}
         </section>
       </main>
@@ -671,6 +716,9 @@ function App() {
                         <li key={s.section_id} className="section-item">
                           <div className="section-item-header">
                             <strong style={{ flex: 1, minWidth: 0 }}>{s.section_id}</strong>
+                            {!isEditing && isEdited(s.section_id) && (
+                              <span className="section-edited-label">Edited</span>
+                            )}
                             <button
                               type="button"
                               className="btn-secondary btn-sm"
