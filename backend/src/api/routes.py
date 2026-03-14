@@ -25,32 +25,52 @@ def _get_vector_store_id() -> str:
     return os.environ.get("OPENAI_VECTOR_STORE_ID", "").strip()
 
 
+# Model env vars: quick = lower-cost, production = higher-quality. Not used in mock.
+OPENAI_MODEL_QUICK_DEFAULT = "gpt-4.1-mini"
+OPENAI_MODEL_PRODUCTION_DEFAULT = "gpt-4.1"
+
+
 def _resolve_generation_mode(
     requested_mode: Optional[str],
-) -> Tuple[bool, Optional[str]]:
+) -> Tuple[bool, Optional[str], Optional[str]]:
     """
-    Resolve (use_mock, vector_store_id for real mode).
-    - requested_mode: 'mock' | 'real' from request (default 'mock').
+    Resolve (use_mock, vector_store_id, model).
+    - requested_mode: 'mock' | 'quick' | 'production' (legacy 'real' -> production).
     - use_mock: True to use placeholder output.
-    - vector_store_id: non-empty only when real mode and configured; None or empty to skip retrieval.
+    - vector_store_id: set when mode is quick/production and OPENAI_VECTOR_STORE_ID configured.
+    - model: OPENAI_MODEL_QUICK or OPENAI_MODEL_PRODUCTION when not mock; None when mock.
     """
     mode = (requested_mode or "mock").strip().lower()
+    # Backward compatibility: real -> production
+    if mode == "real":
+        mode = "production"
     use_mock_llm_env = os.environ.get("USE_MOCK_LLM", "").strip().lower() in ("1", "true", "yes")
     has_key = bool(os.environ.get("OPENAI_API_KEY", "").strip())
     vector_store_id = _get_vector_store_id() or None
 
-    if mode == "real":
-        if use_mock_llm_env:
-            logger.info("generation_mode: requested=real, actual=mock (USE_MOCK_LLM=1)")
-            return True, None
-        if not has_key:
-            logger.warning("generation_mode: requested=real, actual=mock (OPENAI_API_KEY not set)")
-            return True, None
-        logger.info("generation_mode: requested=real, actual=real; vector_store_attached=%s", bool(vector_store_id))
-        return False, vector_store_id if vector_store_id else None
-    # mock requested or unknown
-    logger.info("generation_mode: requested=%s, actual=mock", mode or "mock")
-    return True, None
+    if mode == "mock" or mode not in ("quick", "production"):
+        logger.info("generation_mode: requested=%s, actual=mock", mode or "mock")
+        return True, None, None
+
+    # quick or production
+    if use_mock_llm_env:
+        logger.info("generation_mode: requested=%s, actual=mock (USE_MOCK_LLM=1)", mode)
+        return True, None, None
+    if not has_key:
+        logger.warning("generation_mode: requested=%s, actual=mock (OPENAI_API_KEY not set)", mode)
+        return True, None, None
+
+    if mode == "quick":
+        model = os.environ.get("OPENAI_MODEL_QUICK", OPENAI_MODEL_QUICK_DEFAULT).strip() or OPENAI_MODEL_QUICK_DEFAULT
+    else:
+        model = os.environ.get("OPENAI_MODEL_PRODUCTION", OPENAI_MODEL_PRODUCTION_DEFAULT).strip() or OPENAI_MODEL_PRODUCTION_DEFAULT
+
+    vs_attached = bool(vector_store_id)
+    logger.info(
+        "generation_mode: requested=%s actual=%s model=%s vector_store_attached=%s",
+        requested_mode or "mock", mode, model, vs_attached,
+    )
+    return False, vector_store_id if vector_store_id else None, model
 
 
 def _use_mock_llm() -> bool:
@@ -119,14 +139,14 @@ def api_get_template(template_id: str):
 def api_create_run(body: GenerationRequest):
     """
     Create a run and run the full pipeline.
-    Request can specify generation_mode: 'mock' (default) or 'real'.
+    Request can specify generation_mode: 'mock' | 'quick' | 'production' (legacy 'real' -> production).
     Returns 201 { run_id }. On pipeline failure returns 500 with run.error.
     """
     from src.orchestration.executor import execute_run
 
     run_id = str(uuid.uuid4())
     structured_input = body.structured_input if body.structured_input is not None else {}
-    use_mock, vector_store_id = _resolve_generation_mode(body.generation_mode)
+    use_mock, vector_store_id, model = _resolve_generation_mode(body.generation_mode)
     try:
         execute_run(
             run_id,
@@ -134,6 +154,7 @@ def api_create_run(body: GenerationRequest):
             structured_input,
             mock=use_mock,
             vector_store_id=vector_store_id,
+            model=model,
         )
     except ValueError as e:
         if "Template not found" in str(e):
@@ -199,11 +220,11 @@ def api_rerun_section(run_id: str, section_id: str):
     if section_id not in run.section_ids:
         raise HTTPException(status_code=400, detail="Section not in run")
 
-    use_mock, vector_store_id = _resolve_generation_mode(None)
+    use_mock, vector_store_id, model = _resolve_generation_mode(None)
     try:
         from src.orchestration.executor import execute_single_node
 
-        execute_single_node(run_id, section_id, mock=use_mock, vector_store_id=vector_store_id)
+        execute_single_node(run_id, section_id, mock=use_mock, vector_store_id=vector_store_id, model=model)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

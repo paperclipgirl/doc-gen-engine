@@ -253,7 +253,7 @@ function App() {
   const [sectionEditMode, setSectionEditMode] = useState<string | null>(null)
   const [editingContent, setEditingContent] = useState('')
   const [formExpanded, setFormExpanded] = useState(true)
-  const [generationMode, setGenerationMode] = useState<'mock' | 'real'>('mock')
+  const [generationMode, setGenerationMode] = useState<'mock' | 'quick' | 'production'>('quick')
   const previewEditableRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -473,7 +473,7 @@ function App() {
     setTopic('')
     setContext('')
     setClientName('')
-    setGenerationMode('mock')
+    setGenerationMode('quick')
     setError(null)
   }
 
@@ -1124,24 +1124,46 @@ function App() {
                     onChange={() => setGenerationMode('mock')}
                     disabled={submitting || !!runId}
                   />
-                  <span className="form-radio-text">Fast draft (no API)</span>
+                  <span className="form-radio-text">Mock draft</span>
                 </label>
                 <label className="form-radio-label">
                   <input
                     type="radio"
                     name="generationMode"
                     className="form-radio"
-                    value="real"
-                    checked={generationMode === 'real'}
-                    onChange={() => setGenerationMode('real')}
+                    value="quick"
+                    checked={generationMode === 'quick'}
+                    onChange={() => setGenerationMode('quick')}
                     disabled={submitting || !!runId}
                   />
-                  <span className="form-radio-text">Real run (uses credits)</span>
+                  <span className="form-radio-text">Quick draft</span>
+                </label>
+                <label className="form-radio-label">
+                  <input
+                    type="radio"
+                    name="generationMode"
+                    className="form-radio"
+                    value="production"
+                    checked={generationMode === 'production'}
+                    onChange={() => setGenerationMode('production')}
+                    disabled={submitting || !!runId}
+                  />
+                  <span className="form-radio-text">Production run</span>
                 </label>
               </div>
-              {generationMode === 'real' && (
+              {generationMode === 'mock' && (
                 <p className="form-helper" style={{ marginTop: 'var(--space-1)', marginBottom: 0 }}>
-                  Uses real API credits · Knowledge retrieval enabled
+                  No AI call. Uses placeholder output for testing flows.
+                </p>
+              )}
+              {generationMode === 'quick' && (
+                <p className="form-helper" style={{ marginTop: 'var(--space-1)', marginBottom: 0 }}>
+                  Uses a lower-cost model for fast iteration.
+                </p>
+              )}
+              {generationMode === 'production' && (
+                <p className="form-helper" style={{ marginTop: 'var(--space-1)', marginBottom: 0 }}>
+                  Uses a higher-quality model and knowledge retrieval.
                 </p>
               )}
             </div>

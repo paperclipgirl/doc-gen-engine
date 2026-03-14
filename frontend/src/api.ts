@@ -29,8 +29,8 @@ export async function getTemplate(templateId: string) {
 export interface CreateRunBody {
   template_id: string
   structured_input: Record<string, string>
-  /** 'mock' = placeholder output; 'real' = OpenAI API + optional retrieval */
-  generation_mode?: 'mock' | 'real'
+  /** mock = placeholder; quick = lower-cost model; production = higher-quality + retrieval */
+  generation_mode?: 'mock' | 'quick' | 'production'
 }
 
 export async function createRun(body: CreateRunBody): Promise<{ run_id: string }> {

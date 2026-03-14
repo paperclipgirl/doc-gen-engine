@@ -32,7 +32,7 @@ class GenerationRequest(BaseModel):
 
     template_id: str
     structured_input: dict[str, Any] = Field(default_factory=dict)
-    generation_mode: Optional[str] = Field(default="mock", description="mock = placeholder output; real = OpenAI API + optional retrieval")
+    generation_mode: Optional[str] = Field(default="mock", description="mock | quick | production (legacy 'real' -> production)")
 
 
 class GenerationRun(BaseModel):

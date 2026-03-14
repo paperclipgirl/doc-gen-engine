@@ -118,8 +118,36 @@ def test_api_create_run_with_generation_mode_mock():
     assert "run_id" in r.json()
 
 
-def test_api_create_run_with_generation_mode_real_falls_back_to_mock():
-    """Request with generation_mode=real but USE_MOCK_LLM=1: backend falls back to mock, does not crash."""
+def test_api_create_run_with_generation_mode_quick_falls_back_to_mock():
+    """Request with generation_mode=quick but USE_MOCK_LLM=1: backend falls back to mock, does not crash."""
+    r = client.post(
+        "/api/runs",
+        json={
+            "template_id": "implementation_guidance",
+            "structured_input": {"topic": "T", "jurisdiction": "J", "context": ""},
+            "generation_mode": "quick",
+        },
+    )
+    assert r.status_code == 201
+    assert "run_id" in r.json()
+
+
+def test_api_create_run_with_generation_mode_production_falls_back_to_mock():
+    """Request with generation_mode=production but USE_MOCK_LLM=1: backend falls back to mock, does not crash."""
+    r = client.post(
+        "/api/runs",
+        json={
+            "template_id": "implementation_guidance",
+            "structured_input": {"topic": "T", "jurisdiction": "J", "context": ""},
+            "generation_mode": "production",
+        },
+    )
+    assert r.status_code == 201
+    assert "run_id" in r.json()
+
+
+def test_api_create_run_with_generation_mode_real_maps_to_production():
+    """Legacy generation_mode=real is mapped to production; with USE_MOCK_LLM=1 still falls back to mock."""
     r = client.post(
         "/api/runs",
         json={
@@ -130,6 +158,29 @@ def test_api_create_run_with_generation_mode_real_falls_back_to_mock():
     )
     assert r.status_code == 201
     assert "run_id" in r.json()
+
+
+def test_api_create_run_quick_falls_back_to_mock_when_no_api_key():
+    """When OPENAI_API_KEY is not set, generation_mode=quick falls back to mock and completes."""
+    saved_mock = os.environ.pop("USE_MOCK_LLM", None)
+    saved_key = os.environ.pop("OPENAI_API_KEY", None)
+    try:
+        client_no_key = TestClient(app)
+        r = client_no_key.post(
+            "/api/runs",
+            json={
+                "template_id": "implementation_guidance",
+                "structured_input": {"topic": "T", "jurisdiction": "J", "context": ""},
+                "generation_mode": "quick",
+            },
+        )
+        assert r.status_code == 201
+        assert "run_id" in r.json()
+    finally:
+        if saved_mock is not None:
+            os.environ["USE_MOCK_LLM"] = saved_mock
+        if saved_key is not None:
+            os.environ["OPENAI_API_KEY"] = saved_key
 
 
 def test_api_list_runs():
