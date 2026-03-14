@@ -7,6 +7,7 @@ import {
   createRun,
   getRun,
   getRunVersions,
+  getSectionPrompt,
   listRuns,
   listTemplates,
   rerunSection,
@@ -17,6 +18,15 @@ import {
 } from './api'
 
 const POLL_INTERVAL_MS = 1500
+
+/** Section feedback categories for prompt improvement signals. */
+const SECTION_FEEDBACK_CATEGORIES = [
+  'Legal issue or incorrect legal reasoning',
+  'Not compatible with Clio Operate configuration or workflows',
+  'Missing important information',
+  'Too generic or not actionable',
+  'Formatting or clarity issue',
+] as const
 
 /** Area of Law (first level) and optional sub-areas (second level) for jurisdiction dropdown. */
 const AREA_OF_LAW: { area: string; subs: string[] }[] = [
@@ -147,6 +157,19 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
+  const [promptCache, setPromptCache] = useState<Record<string, string>>({})
+  const [expandedPromptSectionId, setExpandedPromptSectionId] = useState<string | null>(null)
+  const [promptLoadingSectionId, setPromptLoadingSectionId] = useState<string | null>(null)
+  const [promptErrorBySection, setPromptErrorBySection] = useState<Record<string, string>>({})
+  const [sectionFeedback, setSectionFeedback] = useState<Record<string, { category: string; comment?: string; submittedAt: string }>>({})
+  const [expandedFeedbackSectionId, setExpandedFeedbackSectionId] = useState<string | null>(null)
+  const [feedbackCategory, setFeedbackCategory] = useState('')
+  const [feedbackComment, setFeedbackComment] = useState('')
+  const [originalGeneratedContent, setOriginalGeneratedContent] = useState<Record<string, string>>({})
+  const [currentContent, setCurrentContent] = useState<Record<string, string>>({})
+  const [suggestedUpdate, setSuggestedUpdate] = useState<Record<string, string>>({})
+  const [sectionEditMode, setSectionEditMode] = useState<string | null>(null)
+  const [editingContent, setEditingContent] = useState('')
 
   useEffect(() => {
     if (!toast) return
@@ -211,6 +234,35 @@ function App() {
     }
   }, [runId])
 
+  // Initialize original/current section content when run first loads (completed); do not overwrite on rerun
+  useEffect(() => {
+    if (!runId || !run || run.status !== 'completed') return
+    setOriginalGeneratedContent((prev) => {
+      const next = { ...prev }
+      let changed = false
+      run.sections.forEach((s) => {
+        const k = `${runId}|${s.section_id}`
+        if (!(k in next)) {
+          next[k] = s.content
+          changed = true
+        }
+      })
+      return changed ? next : prev
+    })
+    setCurrentContent((prev) => {
+      const next = { ...prev }
+      let changed = false
+      run.sections.forEach((s) => {
+        const k = `${runId}|${s.section_id}`
+        if (!(k in next)) {
+          next[k] = s.content
+          changed = true
+        }
+      })
+      return changed ? next : prev
+    })
+  }, [runId, run])
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -251,21 +303,28 @@ function App() {
   const handleOpenRun = (id: string) => {
     setError(null)
     setRunId(id)
+    setSectionEditMode(null)
   }
 
   const handleRerunSection = (sectionId: string) => {
     if (!runId) return
     setRerunningSectionId(sectionId)
     setError(null)
-        rerunSection(runId, sectionId)
+    rerunSection(runId, sectionId)
       .then(() => {
-        // Poll until run is completed or failed
         const poll = () => {
-          getRun(runId).then((data) => {
+          getRun(runId!).then((data) => {
             setRun(data)
             if (data.status === 'running' || data.status === 'pending') {
               setTimeout(poll, POLL_INTERVAL_MS)
             } else {
+              if (data.status === 'completed') {
+                const section = data.sections.find((sec) => sec.section_id === sectionId)
+                if (section) {
+                  const key = `${runId}|${sectionId}`
+                  setSuggestedUpdate((prev) => ({ ...prev, [key]: section.content }))
+                }
+              }
               setRerunningSectionId(null)
               refreshRunHistory()
             }
@@ -285,6 +344,99 @@ function App() {
   }
 
   const templateName = (id: string) => templates.find((t) => t.id === id)?.name ?? id
+
+  const promptCacheKey = (sectionId: string) => (runId ? `${runId}|${sectionId}` : '')
+  const togglePrompt = (sectionId: string) => {
+    const key = promptCacheKey(sectionId)
+    if (expandedPromptSectionId === sectionId) {
+      setExpandedPromptSectionId(null)
+      return
+    }
+    setExpandedPromptSectionId(sectionId)
+    setPromptErrorBySection((prev) => ({ ...prev, [key]: '' }))
+    if (key && promptCache[key]) return
+    if (!runId) return
+    setPromptLoadingSectionId(sectionId)
+    getSectionPrompt(runId, sectionId)
+      .then(({ prompt_text }) => {
+        setPromptCache((prev) => (key ? { ...prev, [key]: prompt_text } : prev))
+        setPromptLoadingSectionId(null)
+      })
+      .catch((e) => {
+        setPromptErrorBySection((prev) => ({ ...prev, [key]: e instanceof Error ? e.message : 'Could not load prompt' }))
+        setPromptLoadingSectionId(null)
+      })
+  }
+
+  const submitSectionFeedback = (sectionId: string) => {
+    if (!runId || !feedbackCategory.trim()) return
+    const key = `${runId}|${sectionId}`
+    setSectionFeedback((prev) => ({
+      ...prev,
+      [key]: {
+        category: feedbackCategory.trim(),
+        comment: feedbackComment.trim() || undefined,
+        submittedAt: new Date().toISOString(),
+      },
+    }))
+    setFeedbackCategory('')
+    setFeedbackComment('')
+    setExpandedFeedbackSectionId(null)
+  }
+
+  const sectionContentKey = (sectionId: string) => (runId ? `${runId}|${sectionId}` : '')
+  const displayContent = (sectionId: string, fallback: string) =>
+    currentContent[sectionContentKey(sectionId)] ?? fallback
+  const hasSuggested = (sectionId: string) => sectionContentKey(sectionId) in suggestedUpdate
+  const suggestedContent = (sectionId: string) => suggestedUpdate[sectionContentKey(sectionId)] ?? ''
+  const isEdited = (sectionId: string) => {
+    const k = sectionContentKey(sectionId)
+    const orig = originalGeneratedContent[k]
+    const cur = currentContent[k]
+    return orig !== undefined && cur !== undefined && orig !== cur
+  }
+
+  const handleStartEdit = (sectionId: string) => {
+    const k = sectionContentKey(sectionId)
+    setEditingContent(currentContent[k] ?? '')
+    setSectionEditMode(sectionId)
+  }
+  const handleSaveEdit = (sectionId: string) => {
+    const k = sectionContentKey(sectionId)
+    setCurrentContent((prev) => ({ ...prev, [k]: editingContent }))
+    setSectionEditMode(null)
+    setEditingContent('')
+  }
+  const handleCancelEdit = () => {
+    setSectionEditMode(null)
+    setEditingContent('')
+  }
+  const handleResetToGenerated = (sectionId: string) => {
+    const k = sectionContentKey(sectionId)
+    const orig = originalGeneratedContent[k]
+    if (orig !== undefined) setCurrentContent((prev) => ({ ...prev, [k]: orig }))
+  }
+  const handleAcceptSuggested = (sectionId: string) => {
+    const k = sectionContentKey(sectionId)
+    const sug = suggestedUpdate[k]
+    if (sug !== undefined) {
+      setCurrentContent((prev) => ({ ...prev, [k]: sug }))
+      setSuggestedUpdate((prev) => {
+        const next = { ...prev }
+        delete next[k]
+        return next
+      })
+    }
+  }
+  const handleKeepCurrentVersion = (sectionId: string) => {
+    const k = sectionContentKey(sectionId)
+    setSuggestedUpdate((prev) => {
+      const next = { ...prev }
+      delete next[k]
+      return next
+    })
+  }
+
   const docPreviewState = !runId
     ? 'none'
     : !run
@@ -506,22 +658,195 @@ function App() {
                   <p className="run-history-empty">No sections.</p>
                 ) : (
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                    {run.sections.map((s) => (
-                      <li key={s.section_id} className="section-item">
-                        <div className="section-item-header">
-                          <strong style={{ flex: 1, minWidth: 0 }}>{s.section_id}</strong>
-                          <button
-                            type="button"
-                            className="btn-secondary btn-sm"
-                            onClick={() => handleRerunSection(s.section_id)}
-                            disabled={rerunningSectionId !== null}
-                          >
-                            {rerunningSectionId === s.section_id ? 'Rerunning…' : 'Rerun'}
-                          </button>
-                        </div>
-                        <pre className="section-item-content">{s.content}</pre>
-                      </li>
-                    ))}
+                    {run.sections.map((s) => {
+                      const pKey = promptCacheKey(s.section_id)
+                      const fKey = runId ? `${runId}|${s.section_id}` : ''
+                      const feedback = fKey ? sectionFeedback[fKey] : undefined
+                      const showPrompt = expandedPromptSectionId === s.section_id
+                      const showFeedbackForm = expandedFeedbackSectionId === s.section_id
+                      const isEditing = sectionEditMode === s.section_id
+                      const content = displayContent(s.section_id, s.content)
+                      const hasSuggestion = hasSuggested(s.section_id)
+                      return (
+                        <li key={s.section_id} className="section-item">
+                          <div className="section-item-header">
+                            <strong style={{ flex: 1, minWidth: 0 }}>{s.section_id}</strong>
+                            <button
+                              type="button"
+                              className="btn-secondary btn-sm"
+                              onClick={() => handleRerunSection(s.section_id)}
+                              disabled={rerunningSectionId !== null}
+                            >
+                              {rerunningSectionId === s.section_id ? 'Rerunning…' : 'Rerun'}
+                            </button>
+                          </div>
+                          <div className="section-item-actions">
+                            <button
+                              type="button"
+                              className="section-prompt-toggle"
+                              onClick={() => togglePrompt(s.section_id)}
+                            >
+                              {showPrompt ? 'Hide prompt' : 'View prompt'}
+                            </button>
+                            {!isEditing && (
+                              <>
+                                <button
+                                  type="button"
+                                  className="section-version-action"
+                                  onClick={() => handleStartEdit(s.section_id)}
+                                >
+                                  Edit
+                                </button>
+                                {isEdited(s.section_id) && (
+                                  <button
+                                    type="button"
+                                    className="section-version-action"
+                                    onClick={() => handleResetToGenerated(s.section_id)}
+                                  >
+                                    Reset to generated
+                                  </button>
+                                )}
+                              </>
+                            )}
+                          </div>
+                          {showPrompt && (
+                            <div className="section-prompt-wrap">
+                              {promptLoadingSectionId === s.section_id && (
+                                <div className="section-prompt-loading">Loading prompt…</div>
+                              )}
+                              {promptErrorBySection[pKey] && (
+                                <div className="section-prompt-error">{promptErrorBySection[pKey]}</div>
+                              )}
+                              {!promptLoadingSectionId && promptCache[pKey] && (
+                                <pre className="section-prompt">{promptCache[pKey]}</pre>
+                              )}
+                            </div>
+                          )}
+                          {isEditing ? (
+                            <div className="section-version-edit">
+                              <textarea
+                                className="textarea section-version-textarea"
+                                value={editingContent}
+                                onChange={(e) => setEditingContent(e.target.value)}
+                                rows={6}
+                              />
+                              <div className="section-version-edit-actions">
+                                <button
+                                  type="button"
+                                  className="btn-primary btn-sm"
+                                  onClick={() => handleSaveEdit(s.section_id)}
+                                >
+                                  Save
+                                </button>
+                                <button type="button" className="btn-secondary btn-sm" onClick={handleCancelEdit}>
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <pre className="section-item-content">{content}</pre>
+                          )}
+                          {hasSuggestion && (
+                            <div className="section-suggested-update">
+                              <div className="section-suggested-title">Suggested update</div>
+                              <p className="section-suggested-hint">Compare changes below. Accept to use the new version or keep your current version.</p>
+                              <pre className="section-item-content section-suggested-content">{suggestedContent(s.section_id)}</pre>
+                              <div className="section-suggested-actions">
+                                <button
+                                  type="button"
+                                  className="btn-primary btn-sm"
+                                  onClick={() => handleAcceptSuggested(s.section_id)}
+                                >
+                                  Accept changes
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn-secondary btn-sm"
+                                  onClick={() => handleKeepCurrentVersion(s.section_id)}
+                                >
+                                  Keep current version
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                          <div className="section-feedback">
+                            {feedback ? (
+                              <div className="section-feedback-recorded">
+                                <span>Feedback recorded: {feedback.category}</span>
+                                <button
+                                  type="button"
+                                  className="section-feedback-change"
+                                  onClick={() => {
+                                    setExpandedFeedbackSectionId(s.section_id)
+                                    setFeedbackCategory(feedback.category)
+                                    setFeedbackComment(feedback.comment ?? '')
+                                  }}
+                                >
+                                  Change
+                                </button>
+                              </div>
+                            ) : showFeedbackForm ? (
+                              <div className="section-feedback-form">
+                                <label htmlFor={`feedback-category-${s.section_id}`} className="form-label">Reason</label>
+                                <select
+                                  id={`feedback-category-${s.section_id}`}
+                                  className="select"
+                                  value={feedbackCategory}
+                                  onChange={(e) => setFeedbackCategory(e.target.value)}
+                                >
+                                  <option value="">— Select reason —</option>
+                                  {SECTION_FEEDBACK_CATEGORIES.map((cat) => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                  ))}
+                                </select>
+                                <label htmlFor={`feedback-comment-${s.section_id}`} className="form-label form-label-optional">Comment (optional)</label>
+                                <textarea
+                                  id={`feedback-comment-${s.section_id}`}
+                                  className="textarea"
+                                  rows={2}
+                                  placeholder="Add a comment (optional)"
+                                  value={feedbackComment}
+                                  onChange={(e) => setFeedbackComment(e.target.value)}
+                                />
+                                <div className="section-feedback-form-actions">
+                                  <button
+                                    type="button"
+                                    className="btn-primary btn-sm"
+                                    onClick={() => submitSectionFeedback(s.section_id)}
+                                    disabled={!feedbackCategory.trim()}
+                                  >
+                                    Submit
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="btn-secondary btn-sm"
+                                    onClick={() => {
+                                      setExpandedFeedbackSectionId(null)
+                                      setFeedbackCategory('')
+                                      setFeedbackComment('')
+                                    }}
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                className="section-feedback-toggle"
+                                onClick={() => {
+                                  setExpandedFeedbackSectionId(s.section_id)
+                                  setFeedbackCategory('')
+                                  setFeedbackComment('')
+                                }}
+                              >
+                                Feedback
+                              </button>
+                            )}
+                          </div>
+                        </li>
+                      )
+                    })}
                   </ul>
                 )}
                 {versions.length > 0 && (

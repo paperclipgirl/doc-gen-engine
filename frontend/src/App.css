@@ -592,6 +592,200 @@
   max-height: 100px;
 }
 
+.section-item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-bottom: var(--space-1);
+}
+
+.section-prompt-toggle {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  font-weight: var(--fw-medium);
+  color: var(--primary);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  line-height: var(--leading-normal);
+}
+
+.section-prompt-toggle:hover {
+  text-decoration: underline;
+}
+
+.section-version-action {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  font-weight: var(--fw-medium);
+  color: var(--primary);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  line-height: var(--leading-normal);
+}
+
+.section-version-action:hover {
+  text-decoration: underline;
+}
+
+.section-version-edit {
+  margin-bottom: var(--space-1);
+}
+
+.section-version-textarea {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100px;
+  margin-bottom: var(--space-1);
+}
+
+.section-version-edit-actions {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.section-suggested-update {
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: var(--border-width) solid var(--border-strong);
+}
+
+.section-suggested-title {
+  font-family: var(--font-ui);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-caption-weight);
+  color: var(--primary);
+  margin-bottom: var(--space-1);
+}
+
+.section-suggested-hint {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-bottom: var(--space-1);
+  line-height: var(--leading-normal);
+}
+
+.section-suggested-content {
+  margin-bottom: var(--space-1);
+  max-height: 120px;
+}
+
+.section-suggested-actions {
+  display: flex;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+}
+
+.section-prompt-wrap {
+  margin-bottom: var(--space-1);
+}
+
+.section-prompt-loading,
+.section-prompt-error {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-1);
+}
+
+.section-prompt-loading {
+  color: var(--text-muted);
+  background: var(--bg-page);
+  border: var(--border-width) solid var(--border);
+}
+
+.section-prompt-error {
+  color: var(--danger);
+  background: var(--danger-bg);
+  border: var(--border-width) solid var(--border-strong);
+}
+
+.section-prompt {
+  font-family: var(--font-mono);
+  font-size: var(--font-section-size);
+  font-weight: var(--fw-normal);
+  line-height: var(--leading-normal);
+  white-space: pre-wrap;
+  padding: var(--space-1) var(--space-2);
+  background: var(--bg-preview);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: auto;
+  max-height: 180px;
+  margin: 0;
+}
+
+.section-feedback {
+  margin-top: var(--space-1);
+  padding-top: var(--space-1);
+  border-top: var(--border-width) solid var(--border);
+}
+
+.section-feedback-toggle {
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  line-height: var(--leading-normal);
+}
+
+.section-feedback-toggle:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.section-feedback-recorded {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.section-feedback-change {
+  font-size: var(--text-xs);
+  font-weight: var(--fw-medium);
+  color: var(--primary);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.section-feedback-change:hover {
+  text-decoration: underline;
+}
+
+.section-feedback-form .form-label {
+  margin-bottom: 4px;
+}
+
+.section-feedback-form .select,
+.section-feedback-form .textarea {
+  max-width: 100%;
+  width: 100%;
+  margin-bottom: var(--space-1);
+}
+
+.section-feedback-form .textarea {
+  min-height: 60px;
+}
+
+.section-feedback-form-actions {
+  display: flex;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+}
+
 .versions-list {
   list-style: none;
   padding: 0;

@@ -99,6 +99,13 @@ export async function rerunSection(runId: string, sectionId: string): Promise<{ 
   return res.json()
 }
 
+/** Get resolved prompt text for a section (used for transparency in UI). */
+export async function getSectionPrompt(runId: string, sectionId: string): Promise<{ prompt_text: string }> {
+  const res = await fetch(`${API}/runs/${runId}/sections/${sectionId}/prompt`)
+  if (!res.ok) throw new Error(await res.text())
+  return res.json()
+}
+
 /** Section G: version history for a run (GET .../versions). Prototype: one entry per run. */
 export interface VersionSnapshot {
   run_id: string

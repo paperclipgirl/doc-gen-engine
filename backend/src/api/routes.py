@@ -9,7 +9,7 @@ import uuid
 from fastapi import APIRouter, HTTPException
 
 from src.core.models import GenerationRequest
-from src.core import assembler, runner, storage
+from src.core import assembler, prompt_loader, runner, storage
 
 router = APIRouter(prefix="/api", tags=["api"])
 
@@ -164,6 +164,43 @@ def api_rerun_section(run_id: str, section_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
     return {"run_id": run_id, "section_id": section_id}
+
+
+@router.get("/runs/{run_id}/sections/{section_id}/prompt")
+def api_get_section_prompt(run_id: str, section_id: str):
+    """
+    Return the resolved prompt text used to generate this section.
+    404 if run not found, 400 if section not in run.
+    """
+    run = storage.get_run(run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail="Run not found")
+    if section_id not in run.section_ids:
+        raise HTTPException(status_code=400, detail="Section not in run")
+
+    template = storage.get_template(run.template_id)
+    if template is None:
+        raise HTTPException(status_code=404, detail="Template not found")
+
+    section = next((s for s in template.sections if s.id == section_id), None)
+    if section is None:
+        raise HTTPException(status_code=404, detail="Section not found")
+
+    prev_ids = run.section_ids[: run.section_ids.index(section_id)]
+    previous_parts = []
+    for sid in prev_ids:
+        out = storage.read_section(run_id, sid)
+        if out is not None:
+            previous_parts.append(out.content)
+    previous_sections_str = "\n\n".join(previous_parts)
+    prompt_input = {**run.structured_input, "previous_sections": previous_sections_str}
+
+    try:
+        prompt_text = prompt_loader.load_prompt(section.prompt_path, prompt_input)
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+    return {"prompt_text": prompt_text}
 
 
 @router.get("/runs/{run_id}/versions")
