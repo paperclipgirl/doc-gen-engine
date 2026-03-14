@@ -565,10 +565,17 @@
 
 .section-item {
   margin-bottom: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: var(--border-width) solid var(--border);
   font-family: var(--font-ui);
   font-size: var(--text-sm);
   font-weight: var(--fw-normal);
   line-height: var(--leading-normal);
+}
+
+.section-item:first-child {
+  padding-top: 0;
+  border-top: none;
 }
 
 .section-item-header {
@@ -604,15 +611,21 @@
   font-size: var(--text-xs);
   font-weight: var(--fw-medium);
   color: var(--primary);
-  background: none;
-  border: none;
-  padding: 0;
+  padding: var(--space-1) var(--space-2);
+  background: var(--bg-page);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   line-height: var(--leading-normal);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .section-prompt-toggle:hover {
-  text-decoration: underline;
+  border-color: var(--primary);
+  background: var(--bg-main);
+  text-decoration: none;
 }
 
 .section-version-action {
@@ -625,10 +638,37 @@
   padding: 0;
   cursor: pointer;
   line-height: var(--leading-normal);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .section-version-action:hover {
   text-decoration: underline;
+}
+
+.section-version-action-edit {
+  padding: var(--space-1) var(--space-2);
+  background: var(--bg-page);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--primary);
+}
+
+.section-version-action-edit:hover {
+  border-color: var(--primary);
+  background: var(--bg-main);
+  text-decoration: none;
+}
+
+.section-action-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.section-action-icon svg {
+  flex-shrink: 0;
 }
 
 .section-version-edit {
@@ -729,17 +769,32 @@
   font-family: var(--font-ui);
   font-size: var(--text-xs);
   font-weight: var(--fw-medium);
-  color: var(--text-secondary);
-  background: none;
-  border: none;
-  padding: 0;
+  color: var(--primary);
+  background: var(--bg-page);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
   cursor: pointer;
   line-height: var(--leading-normal);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .section-feedback-toggle:hover {
-  color: var(--primary);
-  text-decoration: underline;
+  border-color: var(--primary);
+  background: var(--bg-main);
+  text-decoration: none;
+}
+
+.section-feedback-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.section-feedback-icon svg {
+  flex-shrink: 0;
 }
 
 .section-feedback-recorded {
