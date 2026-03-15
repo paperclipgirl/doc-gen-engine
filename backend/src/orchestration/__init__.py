@@ -12,6 +12,8 @@ from .models import (
     NodeRun,
 )
 
+from .prompt_validation import validate_template_prompts
+
 __all__ = [
     "ExecutionContext",
     "execute_run",
@@ -21,4 +23,5 @@ __all__ = [
     "NodeDefinition",
     "NodeRun",
     "get_graph_definition",
+    "validate_template_prompts",
 ]

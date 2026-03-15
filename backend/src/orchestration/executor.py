@@ -1,7 +1,13 @@
 """
 Graph executor: load graph, resolve node order, execute nodes (section_generator -> prompt+LLM+write),
 write NodeRun metadata per node, then assemble. Single entry point for full run and single-node rerun.
+
+Section chaining: ctx.node_outputs is the authoritative in-memory execution state. Section output
+must propagate to later sections via previous_sections (from to_prompt_dict). We never refill
+ctx.node_outputs from storage during the main run loop—only the return value of run_section() is used.
+Storage is for persistence only, not execution state.
 """
+import logging
 from datetime import datetime
 from typing import Optional
 
@@ -10,6 +16,9 @@ from src.core.models import Template
 
 from .graphs import get_graph_definition
 from .models import ExecutionContext, NODE_TYPE_SECTION_GENERATOR, NodeRun
+from .prompt_validation import validate_template_prompts
+
+logger = logging.getLogger(__name__)
 
 
 def execute_run(
@@ -38,6 +47,8 @@ def execute_run(
     run.status = "running"
     storage.update_run_meta(run)
 
+    validate_template_prompts(template_id)
+
     ctx = ExecutionContext.from_structured_input(structured_input)
     try:
         previous_parts: list[str] = []
@@ -51,9 +62,26 @@ def execute_run(
                 # Phase 1: only section_generator is executed; other types no-op
                 continue
 
+            # Guardrail: declared dependencies must have produced output before this node runs.
+            missing = [d for d in node.depends_on if d not in ctx.node_outputs]
+            if missing:
+                raise RuntimeError(
+                    "Missing dependency outputs for %s: %s. "
+                    "Upstream sections must run first and populate ctx.node_outputs."
+                    % (node.id, missing)
+                )
+
             started_at = datetime.utcnow()
             prev_ids = [graph.nodes[j].id for j in range(i) if graph.nodes[j].node_type == NODE_TYPE_SECTION_GENERATOR]
             prompt_input = ctx.to_prompt_dict(node_ids, prev_ids)
+            previous_sections_str = prompt_input.get("previous_sections", "")
+            logger.debug(
+                "Running node: %s  Dependencies: %s  previous_sections_length=%s",
+                node.id,
+                prev_ids,
+                len(previous_sections_str),
+            )
+
             node_run: Optional[NodeRun] = None
             try:
                 content = runner.run_section(
@@ -63,10 +91,11 @@ def execute_run(
                     template,
                     model=model,
                     mock=mock,
-                    previous_sections=prompt_input.get("previous_sections", ""),
+                    previous_sections=previous_sections_str,
                     vector_store_id=vector_store_id,
                 )
                 previous_parts.append(content)
+                # Canonical source: run_section() return value only. Do not refill from storage.
                 ctx.node_outputs[node.id] = content
                 finished_at = datetime.utcnow()
                 node_run = NodeRun(
@@ -119,9 +148,9 @@ def execute_single_node(
     vector_store_id: Optional[str] = None,
 ) -> str:
     """
-    Rerun a single section node and reassemble. Loads run and template, builds context and
-    previous_sections from storage, calls runner.run_section, writes node run meta, then
-    assembler.assemble_document. Returns assembled content.
+    Rerun a single section node and reassemble. For rerun, prior sections are not re-executed,
+    so we populate ctx.node_outputs from storage (the only source for those outputs).
+    Then we call runner.run_section and use its return value for the rerun section.
     """
     run = storage.get_run(run_id)
     if run is None:
@@ -134,12 +163,19 @@ def execute_single_node(
 
     ctx = ExecutionContext.from_structured_input(run.structured_input)
     prev_ids = run.section_ids[: run.section_ids.index(section_id)]
+    # Rerun only: prior section content comes from storage (we are not re-running those nodes).
     for sid in prev_ids:
         out = storage.read_section(run_id, sid)
         if out is not None:
             ctx.node_outputs[sid] = out.content
     prompt_input = ctx.to_prompt_dict(run.section_ids, prev_ids)
     previous_sections_str = prompt_input.get("previous_sections", "")
+    logger.debug(
+        "Rerun node: %s  previous_section_ids: %s  previous_sections_length=%s",
+        section_id,
+        prev_ids,
+        len(previous_sections_str),
+    )
 
     started_at = datetime.utcnow()
     try:
