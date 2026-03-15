@@ -102,7 +102,8 @@ class ExecutionContext(BaseModel):
         if self.client_name is not None:
             out["client_name"] = self.client_name
         ids_for_prev = previous_section_ids if previous_section_ids is not None else []
-        parts = [self.node_outputs.get(nid, "").strip() for nid in ids_for_prev if self.node_outputs.get(nid)]
+        # Include every previous section in order; do not filter by truthiness so context is never dropped.
+        parts = [self.node_outputs.get(nid, "").strip() for nid in ids_for_prev]
         out["previous_sections"] = "\n\n".join(parts)
         return out
 

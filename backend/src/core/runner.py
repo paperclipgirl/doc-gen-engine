@@ -35,8 +35,10 @@ def _call_llm(
     system_instruction = (
         "You are a document generator. Your output must be only the requested section content in the specified format. "
         "Never respond with chat support phrases (e.g. 'your message didn't come through', 'How can I assist you today?', "
-        "'your message was a placeholder'). If context is missing or sparse, still produce the section using the instructions "
-        "and reasonable assumptions; do not ask the user for clarification."
+        "'your message was a placeholder'). When 'Previous Sections' or prior context is provided, you must use it as "
+        "authoritative context and produce substantive new content for this section only—never placeholder text, "
+        "generic replies, or requests for clarification. If context is missing or sparse, still produce the section "
+        "using the instructions and reasonable assumptions."
     )
     messages: list[dict] = [
         {"role": "system", "content": system_instruction},
