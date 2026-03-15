@@ -1,1 +1,45 @@
-# Placeholder – prompt content to be added
+OBJECTIVE
+Generate the “How to Use This Document” section for the High-Level Design.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+
+Previous Sections
+{{previous_sections}}
+
+DESIGN CONTINUITY RULES
+
+The sections above represent earlier decisions in the HLD (e.g. confirmation summary). Use them as authoritative context. Extend the HLD rather than repeating earlier sections. Only generate the content required for this section.
+
+INSTRUCTIONS
+
+Explain:
+
+• the purpose of the HLD
+• who the intended audiences are
+• what kinds of decisions the HLD is meant to capture
+• that the HLD defines what and why, not how
+• that detailed configuration belongs in later low-level design
+
+Do NOT:
+• describe configuration mechanics
+• describe workflow logic
+• imply approval of implementation detail
+• introduce detailed build instructions
+
+OUTPUT FORMAT
+
+Markdown section titled:
+
+How to Use This Document
+
+End with:
+
+Validation Checklist
+
+• Audience and intent are clear
+• HLD scope and boundaries are explicit
+• No low-level design content introduced

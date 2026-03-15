@@ -67,9 +67,7 @@ def execute_run(
                     vector_store_id=vector_store_id,
                 )
                 previous_parts.append(content)
-                out = storage.read_section(run_id, node.id)
-                if out is not None:
-                    ctx.node_outputs[node.id] = out.content
+                ctx.node_outputs[node.id] = content
                 finished_at = datetime.utcnow()
                 node_run = NodeRun(
                     node_id=node.id,
