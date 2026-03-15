@@ -32,7 +32,16 @@ def _call_llm(
     except ImportError:
         raise RuntimeError("openai package required for runner; pip install openai")
     client = OpenAI()
-    messages: list[dict] = [{"role": "user", "content": prompt_text}]
+    system_instruction = (
+        "You are a document generator. Your output must be only the requested section content in the specified format. "
+        "Never respond with chat support phrases (e.g. 'your message didn't come through', 'How can I assist you today?', "
+        "'your message was a placeholder'). If context is missing or sparse, still produce the section using the instructions "
+        "and reasonable assumptions; do not ask the user for clarification."
+    )
+    messages: list[dict] = [
+        {"role": "system", "content": system_instruction},
+        {"role": "user", "content": prompt_text},
+    ]
     kwargs: dict = {"model": model, "messages": messages}
     if vector_store_id:
         kwargs["tools"] = [{"type": "file_search", "vector_store_ids": [vector_store_id]}]

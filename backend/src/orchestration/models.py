@@ -79,6 +79,9 @@ class ExecutionContext(BaseModel):
     component: Optional[str] = None
     solution_type: Optional[str] = None
     client_name: Optional[str] = None
+    scope_boundary: str = ""
+    matter_work_type_known: str = ""
+    assumptions_dependencies: str = ""
     node_outputs: dict[str, str] = Field(default_factory=dict, description="node_id -> content string")
 
     def to_prompt_dict(self, section_ids: list[str], previous_section_ids: Optional[list[str]] = None) -> dict[str, Any]:
@@ -90,6 +93,9 @@ class ExecutionContext(BaseModel):
             "topic": self.topic,
             "jurisdiction": self.jurisdiction,
             "context": self.context,
+            "scope_boundary": self.scope_boundary or "",
+            "matter_work_type_known": self.matter_work_type_known or "",
+            "assumptions_dependencies": self.assumptions_dependencies or "",
         }
         if self.component is not None:
             out["component"] = self.component
@@ -116,4 +122,7 @@ class ExecutionContext(BaseModel):
             component=_opt(d.get("component")),
             solution_type=_opt(d.get("solution_type")),
             client_name=_opt(d.get("client_name")),
+            scope_boundary=_str(d.get("scope_boundary")),
+            matter_work_type_known=_str(d.get("matter_work_type_known")),
+            assumptions_dependencies=_str(d.get("assumptions_dependencies")),
         )

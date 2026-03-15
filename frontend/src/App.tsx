@@ -231,6 +231,9 @@ function App() {
   const [areaLawSearchQuery, setAreaLawSearchQuery] = useState('')
   const areaLawPickerContainerRef = useRef<HTMLDivElement>(null)
   const [context, setContext] = useState('')
+  const [scopeBoundary, setScopeBoundary] = useState('')
+  const [matterWorkTypeKnown, setMatterWorkTypeKnown] = useState('')
+  const [assumptionsDependencies, setAssumptionsDependencies] = useState('')
   const [runId, setRunId] = useState<string | null>(null)
   const [run, setRun] = useState<RunDetail | null>(null)
   const [runs, setRuns] = useState<RunSummary[]>([])
@@ -436,6 +439,11 @@ function App() {
       ? { topic, jurisdiction: jurisdictionValue, context: context || '' }
       : { client_name: clientName, jurisdiction: jurisdictionValue }
     if (component.trim()) structured_input.component = component.trim()
+    if (templateId === 'hld') {
+      structured_input.scope_boundary = scopeBoundary.trim()
+      structured_input.matter_work_type_known = matterWorkTypeKnown.trim()
+      structured_input.assumptions_dependencies = assumptionsDependencies.trim()
+    }
     createRun({
       template_id: templateId,
       structured_input,
@@ -472,6 +480,9 @@ function App() {
     setSubArea('')
     setTopic('')
     setContext('')
+    setScopeBoundary('')
+    setMatterWorkTypeKnown('')
+    setAssumptionsDependencies('')
     setClientName('')
     setGenerationMode('quick')
     setError(null)
@@ -1101,7 +1112,7 @@ function App() {
                   )}
 
                   <div className="form-group">
-                    <label htmlFor="context" className="form-label">Additional Context <span className="form-label-optional">(optional)</span></label>
+                    <label htmlFor="context" className="form-label">Intended Business Area / Additional Context <span className="form-label-optional">(optional)</span></label>
                     <textarea
                       id="context"
                       className="textarea textarea--large"
@@ -1112,6 +1123,49 @@ function App() {
                       rows={3}
                     />
                   </div>
+                  {templateId === 'hld' && (
+                    <>
+                      <div className="form-group">
+                        <label htmlFor="scope-boundary" className="form-label">Expected Scope Boundary <span className="form-label-optional">(optional)</span></label>
+                        <input
+                          id="scope-boundary"
+                          type="text"
+                          className="input input--large"
+                          value={scopeBoundary}
+                          onChange={(e) => setScopeBoundary(e.target.value)}
+                          disabled={submitting || !!runId}
+                          placeholder="e.g. Instruction and Matter levels only; Single jurisdiction; Phase 1 intake and triage"
+                        />
+                      </div>
+                      <div className="form-group form-group--tight">
+                        <label htmlFor="matter-work-type-known" className="form-label">Matter / Work Type Hierarchy Known <span className="form-label-optional">(optional)</span></label>
+                        <select
+                          id="matter-work-type-known"
+                          className="input"
+                          value={matterWorkTypeKnown}
+                          onChange={(e) => setMatterWorkTypeKnown(e.target.value)}
+                          disabled={submitting || !!runId}
+                        >
+                          <option value="">Not indicated; please confirm</option>
+                          <option value="Yes">Yes</option>
+                          <option value="No">No</option>
+                          <option value="Not yet">Not yet</option>
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label htmlFor="assumptions-dependencies" className="form-label">Known Assumptions, Dependencies, or Open Questions <span className="form-label-optional">(optional)</span></label>
+                        <textarea
+                          id="assumptions-dependencies"
+                          className="textarea textarea--large"
+                          value={assumptionsDependencies}
+                          onChange={(e) => setAssumptionsDependencies(e.target.value)}
+                          disabled={submitting || !!runId}
+                          placeholder="e.g. Relying on shared matter taxonomy; Pending sign-off on phase boundaries"
+                          rows={2}
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
             </div>

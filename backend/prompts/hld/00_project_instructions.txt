@@ -1,35 +1,44 @@
 OBJECTIVE
-Confirm the minimum information required before generating any High-Level Design content.
+Produce a Confirmation Summary from the provided inputs. These are the items the first prompt(s) need before moving forward with HLD content.
 
-INPUT CONTEXT
+PROVIDED INPUTS (use as given; if a value is empty, report "Not specified; clarification needed" for that item)
 
-Topic: {{topic}}
-Jurisdiction: {{jurisdiction}}
-Context: {{context}}
-Component: {{component}}
+• Project/Accelerator Topic: {{topic}}
+• Jurisdictional or Regulatory Context: {{jurisdiction}}
+• Intended Business Area or Operational Problem: {{context}}
+• Expected Scope Boundary: {{scope_boundary}}
+• Matter / Work Type Hierarchy Known: {{matter_work_type_known}}
+• Known Assumptions, Dependencies, or Open Questions: {{assumptions_dependencies}}
+• Component (if any): {{component}}
 
 INSTRUCTIONS
 
-Before generating any HLD content, confirm:
+Output a "Confirmation Summary" that lists each item above. For each item:
+- If the value was provided and non-empty, state it and mark as confirmed (e.g. "Instruction Intake Accelerator (confirmed)").
+- If the value was missing or empty, state "Not specified; clarification needed" or "Not provided; clarification needed" or "Not defined; clarification needed" or "Not indicated; please confirm" or "Not mentioned; please specify if any" as appropriate for that item.
 
-• the project or accelerator topic
-• the jurisdictional or regulatory context
-• the intended business area or operational problem
-• the expected scope boundary
-• whether the Matter / Work Type hierarchy is already known
-• whether there are known assumptions, dependencies, or open questions
+Then either:
+- If any key item is missing, add one short line: "Please provide the missing details above to ensure full clarity before proceeding with any High-Level Design content."
+- If all key items are present, add one short line that scope is confirmed and the design may proceed.
 
-If key information is unclear or incomplete, request clarification before proceeding.
-
-Do NOT generate HLD content at this step.
+Do NOT generate any other HLD content at this step.
 
 OUTPUT FORMAT
 
-Confirmation summary or clarification questions only.
+Confirmation Summary:
+
+• Project/Accelerator Topic: [value or "Not specified; clarification needed"]
+• Jurisdictional or Regulatory Context: [value or "Not specified; clarification needed"]
+• Intended Business Area or Operational Problem: [value or "Not provided; clarification needed"]
+• Expected Scope Boundary: [value or "Not defined; clarification needed"]
+• Matter / Work Type Hierarchy Known: [value or "Not indicated; please confirm"]
+• Known Assumptions, Dependencies, or Open Questions: [value or "Not mentioned; please specify if any"]
+
+[One line: request missing details OR confirm scope and that design may proceed.]
 
 Validation Checklist
 
-• Scope intent is clear
-• Jurisdictional context is visible
-• Structural uncertainty is acknowledged
+• Scope intent is clear or gaps are explicitly called out
+• Jurisdictional context is visible or marked as needed
+• Structural uncertainty is acknowledged where relevant
 • No HLD content generated prematurely
