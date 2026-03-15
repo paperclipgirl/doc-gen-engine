@@ -75,6 +75,11 @@ def execute_run(
             prev_ids = [graph.nodes[j].id for j in range(i) if graph.nodes[j].node_type == NODE_TYPE_SECTION_GENERATOR]
             prompt_input = ctx.to_prompt_dict(node_ids, prev_ids)
             previous_sections_str = prompt_input.get("previous_sections", "")
+            if (node.depends_on or prev_ids) and not previous_sections_str.strip():
+                raise RuntimeError(
+                    "%s requires previous_sections but received empty context."
+                    % node.id
+                )
             logger.debug(
                 "Running node: %s  Dependencies: %s  previous_sections_length=%s",
                 node.id,
