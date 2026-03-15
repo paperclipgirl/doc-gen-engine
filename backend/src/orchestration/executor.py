@@ -80,6 +80,7 @@ def execute_run(
                     "%s requires previous_sections but received empty context."
                     % node.id
                 )
+            logger.info("Executing node %s (type=%s)", node.id, node.node_type)
             logger.debug(
                 "Running node: %s  Dependencies: %s  previous_sections_length=%s",
                 node.id,
@@ -102,6 +103,7 @@ def execute_run(
                 previous_parts.append(content)
                 # Canonical source: run_section() return value only. Do not refill from storage.
                 ctx.node_outputs[node.id] = content
+                logger.info("Node %s completed. Output length=%s", node.id, len(content))
                 finished_at = datetime.utcnow()
                 node_run = NodeRun(
                     node_id=node.id,

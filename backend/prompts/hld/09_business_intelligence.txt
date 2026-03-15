@@ -1,1 +1,58 @@
-# Placeholder – prompt content to be added
+OBJECTIVE
+Generate the “Business Intelligence” section for the High-Level Design.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+Component: {{component}}
+
+Previous Sections
+{{previous_sections}}
+
+DESIGN CONTINUITY RULES
+
+The sections above represent earlier decisions in the HLD.
+
+You must:
+• Treat previous sections as authoritative context.
+• Extend the HLD rather than repeating or rewriting earlier sections.
+
+You must NOT:
+• Restate previous sections.
+• Re-explain earlier design decisions.
+• Modify previously defined scope.
+
+Only generate the content required for this section.
+
+INSTRUCTIONS
+
+Generate substantive section content based on the topic, component, context, and previous sections above. Do not output placeholder text, TODO, or generic support phrases.
+
+Describe the high-level reporting and business intelligence expectations for the solution.
+
+Explain:
+• what kinds of visibility the business needs
+• which business goals or operational outcomes reporting should support
+• how the solution is expected to contribute to management oversight
+• any high-level assumptions or limitations
+
+Do NOT:
+• define specific reports
+• define dashboards in detail
+• define metrics that have not been agreed
+
+OUTPUT FORMAT
+
+Markdown section titled:
+
+Business Intelligence
+
+End with:
+
+Validation Checklist
+
+• Reporting intent is clear
+• BI expectations align with business goals
+• No detailed reporting design introduced

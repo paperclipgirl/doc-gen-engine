@@ -6,6 +6,7 @@ INPUT CONTEXT
 Topic: {{topic}}
 Jurisdiction: {{jurisdiction}}
 Context: {{context}}
+Component: {{component}}
 
 Previous Sections
 {{previous_sections}}

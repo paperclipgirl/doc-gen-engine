@@ -1,1 +1,39 @@
-# Placeholder – prompt content to be added
+OBJECTIVE
+Generate the “Document Control” section for the High-Level Design.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+Component: {{component}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Generate content for:
+• contact details structure
+• change history structure
+• distribution guidance
+
+Treat the HLD as draft design documentation pending governance review and approval.
+
+Do NOT:
+• mark content as approved or final
+• invent named recipients unless the context explicitly supports it
+
+OUTPUT FORMAT
+
+Markdown section titled:
+
+Document Control
+
+End with:
+
+Validation Checklist
+
+• Governance framing is explicit
+• Change control structure is present
+• No false approval status implied

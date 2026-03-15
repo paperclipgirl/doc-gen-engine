@@ -1,1 +1,58 @@
-# Placeholder – prompt content to be added
+OBJECTIVE
+Generate the “Data Migration” section for the High-Level Design.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+Component: {{component}}
+
+Previous Sections
+{{previous_sections}}
+
+DESIGN CONTINUITY RULES
+
+The sections above represent earlier decisions in the HLD.
+
+You must:
+• Treat previous sections as authoritative context.
+• Extend the HLD rather than repeating or rewriting earlier sections.
+
+You must NOT:
+• Restate previous sections.
+• Re-explain earlier design decisions.
+• Modify previously defined scope.
+
+Only generate the content required for this section.
+
+INSTRUCTIONS
+
+Generate substantive section content based on the topic, component, context, and previous sections above. Do not output placeholder text, TODO, or generic support phrases.
+
+Provide a high-level description of data migration requirements and constraints.
+
+Describe:
+• what kinds of data are expected to be migrated
+• why migration matters for the solution
+• any high-level business, governance, or sequencing assumptions
+• the relationship to later data migration design
+
+Do NOT:
+• define mapping logic
+• define field-level migration detail
+• define migration tooling or technical steps
+
+OUTPUT FORMAT
+
+Markdown section titled:
+
+Data Migration
+
+End with:
+
+Validation Checklist
+
+• Migration intent is clear
+• Migration constraints and assumptions are visible
+• No low-level migration detail introduced

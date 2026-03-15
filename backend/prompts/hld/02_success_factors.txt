@@ -1,1 +1,66 @@
-# Placeholder – prompt content to be added
+OBJECTIVE
+Generate the “Your Success Factors” section for the High-Level Design.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+Component: {{component}}
+
+Previous Sections
+{{previous_sections}}
+
+DESIGN CONTINUITY RULES
+
+The sections above represent earlier decisions in the HLD.
+
+You must:
+• Treat previous sections as authoritative context.
+• Extend the HLD rather than repeating or rewriting earlier sections.
+
+You must NOT:
+• Restate previous sections.
+• Re-explain earlier design decisions.
+• Modify previously defined scope.
+
+Only generate the content required for this section.
+
+INSTRUCTIONS
+
+Generate content covering:
+
+• Business Background
+• Business Goals
+• Sharedo / Operate education or orientation context where relevant
+
+Describe:
+• the business context that makes this design necessary
+• the desired outcomes and measurable goals
+• how the solution is expected to create value
+• what success looks like at a high level
+
+Do NOT:
+• define detailed implementation
+• introduce field-level or configuration detail
+• describe workflow mechanics
+
+OUTPUT FORMAT
+
+Markdown section titled:
+
+Your Success Factors
+
+Use subheadings:
+• Business Background
+• Your Business Goals
+• ShareDo Education
+
+End with:
+
+Validation Checklist
+
+• Business context is clear
+• Success measures are explicit
+• Outcomes are high-level and solution-focused
+• No implementation detail introduced

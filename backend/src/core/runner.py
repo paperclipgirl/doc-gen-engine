@@ -62,6 +62,17 @@ def _call_llm(
     return choice.message.content or ""
 
 
+def _warn_if_placeholder_output(section_id: str, content: str) -> None:
+    """Log a warning if section output looks like placeholder or stub content."""
+    lower = content.strip().lower()
+    patterns = ("todo", "placeholder", "[insert")
+    if any(p in lower for p in patterns):
+        logger.warning(
+            "Section %s appears to contain placeholder output (contains TODO, placeholder, or [Insert).",
+            section_id,
+        )
+
+
 def run_section(
     run_id: str,
     section_id: str,
@@ -95,6 +106,7 @@ def run_section(
             model or _get_model(),
             vector_store_id=vector_store_id,
         )
+        _warn_if_placeholder_output(section_id, content)
 
     storage.write_section(run_id, section_id, content)
     run = storage.get_run(run_id)

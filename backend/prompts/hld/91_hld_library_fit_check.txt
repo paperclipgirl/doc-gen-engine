@@ -1,1 +1,38 @@
-# Placeholder – prompt content to be added
+OBJECTIVE
+Assess the High-Level Design from an accelerator library and governance perspective.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+Component: {{component}}
+
+Previous Sections
+{{previous_sections}}
+
+INSTRUCTIONS
+
+Assess:
+• whether the design appears reusable and composable
+• whether scope is too elastic or too specialised
+• whether naming or structural choices risk collisions with other accelerators
+• whether the HLD preserves appropriate governance boundaries
+• whether the design appears feasible within ShareDo / Operate at a high level
+
+Use the following headings:
+
+Library Compatibility Assessment
+Scope Risks
+Governance and Reuse Risks
+Recommendations
+
+Do NOT redesign the HLD or expand scope.
+
+OUTPUT FORMAT
+
+Structured assessment only.
+
+If safe, conclude with:
+
+HLD appears library-compatible.

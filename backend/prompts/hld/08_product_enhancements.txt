@@ -1,1 +1,58 @@
-# Placeholder – prompt content to be added
+OBJECTIVE
+Generate the “Product Enhancements” section for the High-Level Design.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+Component: {{component}}
+
+Previous Sections
+{{previous_sections}}
+
+DESIGN CONTINUITY RULES
+
+The sections above represent earlier decisions in the HLD.
+
+You must:
+• Treat previous sections as authoritative context.
+• Extend the HLD rather than repeating or rewriting earlier sections.
+
+You must NOT:
+• Restate previous sections.
+• Re-explain earlier design decisions.
+• Modify previously defined scope.
+
+Only generate the content required for this section.
+
+INSTRUCTIONS
+
+Generate substantive section content based on the topic, component, context, and previous sections above. Do not output placeholder text, TODO, or generic support phrases.
+
+Describe any product requirements, gaps, or enhancement needs identified at a high level.
+
+For each enhancement, explain:
+• what is needed
+• why it matters
+• the likely impact if it is not addressed
+• whether it is assumed, optional, or dependency-related
+
+Do NOT:
+• define implementation detail
+• invent ticket numbers
+• define product backlog items in technical detail
+
+OUTPUT FORMAT
+
+Markdown section titled:
+
+Product Enhancements
+
+End with:
+
+Validation Checklist
+
+• Enhancement needs are clearly described
+• Scope and impact are visible
+• No technical implementation detail introduced

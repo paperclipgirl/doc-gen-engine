@@ -1,1 +1,63 @@
-# Placeholder – prompt content to be added
+OBJECTIVE
+Generate the “Integrations” section for the High-Level Design.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+Component: {{component}}
+
+Previous Sections
+{{previous_sections}}
+
+DESIGN CONTINUITY RULES
+
+The sections above represent earlier decisions in the HLD.
+
+You must:
+• Treat previous sections as authoritative context.
+• Extend the HLD rather than repeating or rewriting earlier sections.
+
+You must NOT:
+• Restate previous sections.
+• Re-explain earlier design decisions.
+• Modify previously defined scope.
+
+Only generate the content required for this section.
+
+INSTRUCTIONS
+
+Generate substantive section content based on the topic, component, context, and previous sections above. Do not output placeholder text, TODO, or generic support phrases.
+
+Describe the high-level integration interfaces required.
+
+For each integration, identify:
+• integration type
+• systems involved
+• high-level description of the interface or dependency
+
+Explain:
+• why the integration matters
+• what business capability or visibility it supports
+• any high-level assumptions or constraints
+
+Do NOT:
+• define payloads
+• define implementation sequences
+• define technical specifications
+• introduce low-level integration design
+
+OUTPUT FORMAT
+
+Markdown section titled:
+
+Integrations
+
+End with:
+
+Validation Checklist
+
+• Integration boundaries are clear
+• Business purpose of each integration is visible
+• No technical implementation detail introduced

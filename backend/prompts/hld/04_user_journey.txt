@@ -1,1 +1,70 @@
-# Placeholder – prompt content to be added
+OBJECTIVE
+Generate the “Your User Journey” section for the High-Level Design.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+Component: {{component}}
+
+Previous Sections
+{{previous_sections}}
+
+DESIGN CONTINUITY RULES
+
+The sections above represent earlier decisions in the HLD.
+
+You must:
+• Treat previous sections as authoritative context.
+• Extend the HLD rather than repeating or rewriting earlier sections.
+
+You must NOT:
+• Restate previous sections.
+• Re-explain earlier design decisions.
+• Modify previously defined scope.
+
+Only generate the content required for this section.
+
+INSTRUCTIONS
+
+Generate substantive section content based on the topic, component, context, and previous sections above. Do not output placeholder text, TODO, or generic support phrases.
+
+Generate high-level user journey content covering:
+
+• Journey Map
+• Receiving Instructions
+• Managing a Matter
+• Drafting Documents
+
+Describe:
+• the end-to-end operational flow from the user perspective
+• how the solution supports realistic business workflows
+• what key user outcomes and interactions matter most
+• where major transitions in the lifecycle occur
+
+Do NOT:
+• define workflow logic
+• define triggers, conditions, or routing
+• introduce configuration mechanics
+
+OUTPUT FORMAT
+
+Markdown section titled:
+
+Your User Journey
+
+Use subheadings:
+• Journey Map
+• Receiving Instructions
+• Managing a Matter
+• Drafting Documents
+
+End with:
+
+Validation Checklist
+
+• User journeys are end-to-end and realistic
+• Journeys align with scope
+• Major lifecycle movement is visible
+• No workflow logic introduced

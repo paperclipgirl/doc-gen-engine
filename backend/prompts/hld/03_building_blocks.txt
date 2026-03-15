@@ -1,1 +1,70 @@
-# Placeholder – prompt content to be added
+OBJECTIVE
+Generate the “Your Building Blocks” section for the High-Level Design.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+Component: {{component}}
+
+Previous Sections
+{{previous_sections}}
+
+DESIGN CONTINUITY RULES
+
+The sections above represent earlier decisions in the HLD.
+
+You must:
+• Treat previous sections as authoritative context.
+• Extend the HLD rather than repeating or rewriting earlier sections.
+
+You must NOT:
+• Restate previous sections.
+• Re-explain earlier design decisions.
+• Modify previously defined scope.
+
+Only generate the content required for this section.
+
+INSTRUCTIONS
+
+Generate content covering:
+
+• Accelerator Pack
+• Your Scope
+• Out of Scope
+• Matter Hierarchy
+
+Describe:
+• the structural building blocks of the solution
+• what is explicitly in scope
+• what is explicitly out of scope
+• the high-level Matter / Work Type hierarchy
+• how the structural model supports the solution intent
+
+Do NOT:
+• define field structures
+• define workflow logic
+• define menu or ribbon behaviour
+• introduce low-level configuration detail
+
+OUTPUT FORMAT
+
+Markdown section titled:
+
+Your Building Blocks
+
+Use subheadings:
+• Accelerator Pack
+• Your Scope
+• Out of Scope
+• Matter Hierarchy
+
+End with:
+
+Validation Checklist
+
+• Scope and out-of-scope boundaries are explicit
+• Matter / Work Type hierarchy is coherent
+• Structural intent is clear
+• No low-level design content introduced

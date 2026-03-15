@@ -1,1 +1,62 @@
-# Placeholder – prompt content to be added
+OBJECTIVE
+Generate the high-level “Workflows” section for the High-Level Design.
+
+INPUT CONTEXT
+
+Topic: {{topic}}
+Jurisdiction: {{jurisdiction}}
+Context: {{context}}
+Component: {{component}}
+
+Previous Sections
+{{previous_sections}}
+
+DESIGN CONTINUITY RULES
+
+The sections above represent earlier decisions in the HLD.
+
+You must:
+• Treat previous sections as authoritative context.
+• Extend the HLD rather than repeating or rewriting earlier sections.
+
+You must NOT:
+• Restate previous sections.
+• Re-explain earlier design decisions.
+• Modify previously defined scope.
+
+Only generate the content required for this section.
+
+INSTRUCTIONS
+
+Generate a high-level workflow catalogue.
+
+For each workflow, provide:
+• workflow name
+• trigger
+• workflow description
+
+Describe:
+• the purpose of the workflow
+• what it assists or automates at a high level
+• what outcomes, reminders, tasks, or documents it may create
+
+Do NOT:
+• define workflow logic
+• define conditions, routing, or system IDs
+• introduce implementation-level workflow detail
+
+OUTPUT FORMAT
+
+Markdown section titled:
+
+Workflows
+
+Include a high-level workflow catalogue table followed by a short explanatory narrative.
+
+End with:
+
+Validation Checklist
+
+• Workflows are tied to user journeys and scope
+• Triggers are high-level and understandable
+• No workflow logic or configuration detail introduced
